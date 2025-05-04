@@ -1,0 +1,20 @@
+{
+  "name": "Lakehouse Workspace",
+
+  "build": { "dockerfile": "./Dockerfile" },
+
+  "features": { "ghcr.io/devcontainers/features/docker-in-docker:2": {}},
+
+  "postCreateCommand": "cd /workspace && pre-commit install -t pre-commit -t commit-msg",
+
+  "customizations": {
+    "vscode": {
+      "settings": { "markdownlint.config": "/workspace/.markdownlint.json"}
+    }
+  },
+
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+
+  "mounts": [ "source=${localWorkspaceFolder}/../lakehouse-book,target=/workspace/book,type=bind" ]
+}

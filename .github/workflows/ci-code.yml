@@ -1,0 +1,7 @@
+name: ci-code (placeholder)
+on: [push]
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "replace with real workflow"

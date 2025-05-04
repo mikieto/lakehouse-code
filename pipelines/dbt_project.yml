@@ -1,0 +1,4 @@
+name: lakehouse
+profile: mvp
+config-version: 2
+version: '1.8'

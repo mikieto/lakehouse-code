@@ -1,0 +1,7 @@
+.PHONY: portal-up kafka-producer
+portal-up:
+	docker compose -f portal-docker/docker-compose.yml up -d portal
+
+kafka-producer:
+	pip install -q -r data_producers/kafka/requirements.txt
+	python data_producers/kafka/producer.py

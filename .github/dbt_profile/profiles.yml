@@ -1,0 +1,9 @@
+lakehouse:
+  target: prod
+  outputs:
+    prod:
+      type: athena
+      work_group: lakehouse-dev-wg
+      region_name: us-east-1
+      s3_staging_dir: s3://lakehouse-dev-bronze/athena-results/
+      threads: 8

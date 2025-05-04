@@ -1,0 +1,27 @@
+name: CI Code
+on: [push, pull_request]
+
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-code-${{ hashFiles('.devcontainer/Dockerfile') }}
+          restore-keys: ${{ runner.os }}-code-
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          load: true
+          target: runtime
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to:   type=local,dest=/tmp/.buildx-cache,mode=max
+
+      - name: Run Make
+        run: docker run --rm -v $PWD:/workspace runtime make ci
