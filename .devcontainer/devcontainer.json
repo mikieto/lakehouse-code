@@ -1,20 +1,11 @@
 {
-  "name": "Lakehouse Workspace",
+  "name": "Lakehouse Code",
+  "image": "ghcr.io/mikieto/lakehouse-code:latest",
+ // "initializeCommand": "chown -R dev:dev ${WORKSPACE_FOLDER} || true",
 
-  "build": { "dockerfile": "./Dockerfile" },
-
-  "features": { "ghcr.io/devcontainers/features/docker-in-docker:2": {}},
-
-  "postCreateCommand": "cd /workspace && pre-commit install -t pre-commit -t commit-msg",
-
-  "customizations": {
-    "vscode": {
-      "settings": { "markdownlint.config": "/workspace/.markdownlint.json"}
-    }
-  },
-
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
-  "workspaceFolder": "/workspace",
-
-  "mounts": [ "source=${localWorkspaceFolder}/../lakehouse-book,target=/workspace/book,type=bind" ]
+  "initializeCommand": "WS=$(pwd); chown -R 1000:1000 \"$WS\" \"$WS/.git\" || true",
+ 
+  "features": { "ghcr.io/devcontainers/features/docker-in-docker:2": {} },
+  "remoteUser": "dev",
+  "postCreateCommand": "cd \"$PWD\" && pre-commit install -t pre-commit -t commit-msg"
 }

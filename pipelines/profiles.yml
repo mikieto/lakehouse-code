@@ -1,0 +1,8 @@
+# pipelines/profiles.yml
+mvp:
+  target: duckdb
+  outputs:
+    duckdb:
+      type: duckdb
+      path: ../data/dev.duckdb
+      threads: 4
