@@ -14,9 +14,19 @@ RUN pip install -q \
         pre-commit && \
     gem install --no-document mdl
 
-# Vale
+# Terraform CLI
+RUN apt-get update -y && \
+    apt-get install -y gnupg software-properties-common curl && \
+    curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
+      | tee /etc/apt/sources.list.d/hashicorp.list && \
+    apt-get update -y && \
+    apt-get install -y terraform=1.6.* && \
+    terraform -version
+
+    # Vale
 RUN curl -sSL https://github.com/errata-ai/vale/releases/download/v3.0.2/vale_3.0.2_Linux_64-bit.tar.gz \
-    | tar -xz -C /usr/local/bin --strip-components=1 vale
+| tar -xz -C /usr/local/bin --strip-components=1 vale
 
 # act
 RUN curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | bash
