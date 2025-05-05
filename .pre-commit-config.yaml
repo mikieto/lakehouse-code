@@ -21,3 +21,18 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
+
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.82.0
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+        args: ["--terragrunt-working-dir=infra"]
+
+  - repo: local
+    hooks:
+      - id: dbt-compile
+        name: "dbt compile"
+        entry: bash -c "dbt compile --project-dir pipelines --profiles-dir pipelines --target duckdb"
+        language: system
+        files: '^pipelines/'
