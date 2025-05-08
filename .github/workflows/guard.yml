@@ -1,0 +1,13 @@
+name: Guard CI (echo)
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+
+jobs:
+  guard:
+    if: contains(github.event.pull_request.labels.*.name, 'environment:') &&
+        contains(github.event.pull_request.labels.*.name, 'norm:')
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "ok"
