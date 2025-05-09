@@ -1,0 +1,15 @@
+{
+    "name": "lakehouse-code",
+    "image": "ghcr.io/mikieto/lakehouse-code:latest",
+    "postCreateCommand": "pre-commit install",
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "ms-python.python",
+          "hashicorp.terraform",
+          "eamodio.gitlens"
+        ]
+      }
+    }
+  }
+  
