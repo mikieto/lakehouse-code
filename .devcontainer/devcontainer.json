@@ -1,6 +1,6 @@
 {
     "name": "lakehouse-code",
-    "image": "ghcr.io/<org>/lakehouse-code:latest",
+    "image": "ghcr.io/mikieto/lakehouse-code:latest",
     "postCreateCommand": "pre-commit install",
     "customizations": {
       "vscode": {
