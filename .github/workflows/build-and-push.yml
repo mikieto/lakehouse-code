@@ -1,6 +1,10 @@
 # .github/workflows/build-push.yml
 name: Build & Push DevContainer image
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     paths: [.devcontainer/**, .github/workflows/build-and-push.yml]
