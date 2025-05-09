@@ -14,8 +14,7 @@ RUN pip install --no-cache-dir pre-commit \
 # Data stack
 RUN pip install --no-cache-dir \
       pyspark==3.5.* \
-      dbt-core==1.9.* \
-      syft==1.*
+      dbt-core==1.9.*
 
 # Terraform
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg && \

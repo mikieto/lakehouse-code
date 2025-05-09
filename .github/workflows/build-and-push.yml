@@ -1,9 +1,12 @@
 # .github/workflows/build-push.yml
 name: Build & Push DevContainer image
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
-    branches: [main]
     paths: [.devcontainer/**, .github/workflows/build-and-push.yml]
   workflow_dispatch:
 
@@ -12,6 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: devcontainers/ci@v0.3
         with:
