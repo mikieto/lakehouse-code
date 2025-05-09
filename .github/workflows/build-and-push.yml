@@ -3,7 +3,6 @@ name: Build & Push DevContainer image
 
 on:
   push:
-    branches: [main]
     paths: [.devcontainer/**, .github/workflows/build-and-push.yml]
   workflow_dispatch:
 
