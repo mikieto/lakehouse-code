@@ -1,5 +1,12 @@
-scaffold.shbook/
+scaffold.sh
 .vscode/
 
 pipelines/logs/
 pipelines/target/
+
+# --- Terraform ---
+**/.terraform/
+*.tfstate*
+*.tfplan
+crash.log
+*.tf.log
