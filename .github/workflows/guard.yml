@@ -1,4 +1,4 @@
-name: Guard CI (echo)
+name: Guard CI
 
 on:
   pull_request:
@@ -7,8 +7,7 @@ on:
 jobs:
   guard:
     if: contains(join(github.event.pull_request.labels.*.name, ','), 'environment:')
-        && contains(join(github.event.pull_request.labels.*.name, ','), 'norm:')
+        || contains(join(github.event.pull_request.labels.*.name, ','), 'norm:')
     runs-on: ubuntu-latest
     steps:
       - run: echo "ok"
-   

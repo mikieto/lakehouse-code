@@ -1,3 +1,7 @@
+# 2025-05-09  Cleanup
+
+- Removed legacy workflows: build-push.yml, ci.yml
+
 # Phase A – Manual Bootstrap (2025-05-08)
 
 | Step            | Done | Notes                                          |

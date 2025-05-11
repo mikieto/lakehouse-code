@@ -1,14 +1,21 @@
 # .github/workflows/build-push.yml
-name: Build & Push image
+name: Build & Push DevContainer image
+
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
-    branches: [ main ]
+    paths: [.devcontainer/**, .github/workflows/build-and-push.yml]
+  workflow_dispatch:
 
 jobs:
-  docker:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -16,9 +23,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
+      - uses: devcontainers/ci@v0.3
         with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          imageName: ghcr.io/${{ github.repository_owner }}/lakehouse-code
+          push: always
