@@ -32,11 +32,11 @@ Make it possible for any learner to deploy & tear down a fully managed Bronze 
 
 ---
 
-## 3. Execution (HOW)
+## 3. Execution (HOW)
 
 1. **Prep Week – Code v0.9 freeze**
 
-   * Terraform/CDK for all resources (Bronze→Gold, MLflow→SageMaker, Backstage on App Runner)
+   * Terraform/CDK for all resources (Bronze→Gold, MLflow→SageMaker, Backstage on App Runner)
    * Sample data (orders/users CSV) loaded
    * Guard CI (`guard.yml`, `smoke.yml`, `infra.yml`) passes
    * Tag **`v0.9.0`** pushed
@@ -101,5 +101,6 @@ Make it possible for any learner to deploy & tear down a fully managed Bronze 
 
 | Date       | Author  | Summary                                     |
 | ---------- | ------- | ------------------------------------------- |
+| 2025‑05‑11 | @editor | Add cost tweaks/quick-win simplifications   |
 | 2025‑05‑11 | @editor | Replace plan with Code v0.9 freeze timeline |
 | 2025-05-11 | @editor | Revise for code-first (v0.9) release        |
