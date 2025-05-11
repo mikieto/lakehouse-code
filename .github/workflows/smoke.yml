@@ -1,18 +1,27 @@
+# ====================================================================
+# File: .github/workflows/smoke.yml
+# Purpose: Run quick-start smoke locally and ensure script exits 0
+# ====================================================================
 name: Smoke Test
 
 on:
   pull_request:
+    paths: [ 'quick-start.sh', '**/smoke.yml' ]
   workflow_dispatch:
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
-
-    container:
-      image: ghcr.io/${{ github.repository_owner }}/lakehouse-code:latest
-
     steps:
-      - uses: actions/checkout@v4
 
-      - name: Run quick-start smoke
-        run: ./quick-start.sh --smoke --local-mode
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: "Run common setup"
+        uses: ./.github/actions/common
+
+      - name: "Execute smoke script"
+        shell: bash
+        run: |
+          chmod +x ./quick-start.sh
+          ./quick-start.sh --smoke --local-mode
