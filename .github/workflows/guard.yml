@@ -1,26 +1,51 @@
 # ====================================================================
 # File: .github/workflows/guard.yml
-# Purpose: PR label gate + minimal tfsec / OPA pass (echo in v0.9)
+# Purpose: Enforce PR label gate and run a lightweight guard on main
 # ====================================================================
-name: Guard CI
+
+name: Guard CI          # The check name that appears in the PR
 
 on:
+  # --- PR gate ------------------------------------------------------
   pull_request:
     types: [opened, synchronize, labeled, reopened]
 
+  # --- Main-branch watchdog ----------------------------------------
+  push:
+    branches: [ main ]  # Run after every merge or direct push to main
+
 jobs:
-  guard:
-    if: >-
-      contains(join(github.event.pull_request.labels.*.name, ','), 'environment:') &&
-      contains(join(github.event.pull_request.labels.*.name, ','), 'norm:')
+  # -----------------------------------------------------------------
+  # PR job – only runs when both required labels are present
+  # -----------------------------------------------------------------
+  guard-pr:
+    if: github.event_name == 'pull_request' &&
+        contains(join(github.event.pull_request.labels.*.name, ','), 'environment:') &&
+        contains(join(github.event.pull_request.labels.*.name, ','), 'norm:')
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: "Run common setup"
+      - name: Common setup
         uses: ./.github/actions/common
 
-      - name: "tfsec placeholder"
-        run: echo "tfsec placeholder → always green on v0.9"
+      - name: tfsec placeholder (PR gate)
+        run: echo "tfsec placeholder – PR gate"
+
+  # -----------------------------------------------------------------
+  # Main job – always runs on pushes to main (no label filter)
+  # -----------------------------------------------------------------
+  guard-main:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Common setup
+        uses: ./.github/actions/common
+
+      - name: tfsec placeholder (main gate)
+        run: echo "tfsec placeholder – main gate"
+
