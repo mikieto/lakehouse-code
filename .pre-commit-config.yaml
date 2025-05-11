@@ -11,7 +11,7 @@ repos:
     rev: v0.40.0
     hooks:
       - id: markdownlint
-        language_version: "18.20.2"
+        language_version: "system"
         entry: markdownlint --disable MD013   # disable long-line rule
         files: \.(md|markdown)$
 
