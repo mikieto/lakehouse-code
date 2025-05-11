@@ -30,4 +30,5 @@ git checkout v0.9.0
 
 # CI smoke test (local & free)
 ./quick-start.sh --smoke --local-mode
+
 ```
