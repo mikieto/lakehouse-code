@@ -1,1 +1,1 @@
-# TODO – will be filled in Phase C
+<!-- glossary stub -->
