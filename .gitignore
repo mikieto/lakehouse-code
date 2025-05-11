@@ -1,2 +1,4 @@
 scaffold.shbook/
 .vscode/
+pipelines/logs/
+pipelines/target/
