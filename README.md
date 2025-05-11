@@ -1,34 +1,122 @@
-# 🚀 30-Minute Self-Service Lakehouse — *lakehouse-code*
+# 🚀 **30-Minute Self-Service Lakehouse**
 
-| Guard | License | Cost ≤ $20 / month |
-|-------|---------|--------------------|
-| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/guard.yml?label=guard&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20$20-brightgreen) |
+| Guard | License | Cost ≤ US $20 / month |
+|-------|---------|-----------------------|
+| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/guard.yml?label=guard\&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
 
-> **Purpose —** Spin up and tear down a **fully managed Lakehouse in ≤ 30 minutes** while keeping cloud costs **under $20 per month**. *(code v0.9 tagged)*
-> A step-by-step *walk-through book* will be published soon — this repo already contains **all code** you need to follow along.
-
----
-
-## 📚 What You’ll Learn
-
-* Build an **end-to-end Bronze → Silver → Gold pipeline** in 30 minutes — 100 % Serverless
-* ΔLake on **EMR Serverless**, Iceberg, Glue Streaming CDC, MLflow → SageMaker, Backstage on App Runner
-* **SBOM + cosign** signing / **Great Expectations** data contracts for security & quality
-* **Fin-Ops & Green-Ops**: Infracost, Budgets, auto-Destroy to optimise carbon and dollars
-* AI-assisted Low-Code patterns & Internal Developer Platform integration
+> **Spin up — learn — tear down** a fully-managed, serverless Lakehouse in **under 30 minutes**.
+> All cloud resources can be kept below **US \$20/month** with the default settings.
+> *A companion book is in the works; this repo already contains the complete, runnable code.*
 
 ---
 
-## 🏃 Quick Start
+## 📦  What’s Inside
+
+| Layer             | Tech Stack                                   | Highlights                                  |
+| ----------------- | -------------------------------------------- | ------------------------------------------- |
+| **Storage**       | Amazon S3 (Bronze / Silver / Gold)           | Hive-style partitions, lifecycle policies   |
+| **Table Format**  | Apache Iceberg                               | ACID, time-travel, schema evolution         |
+| **Orchestration** | Glue Serverless, dbt, Airflow (on Docker)    | Declarative pipelines, DAG-based scheduling |
+| **Streaming**     | MSK + Kafka Connect (Debezium)               | Change-Data-Capture to S3                   |
+| **ML & MLOps**    | SageMaker Serverless, MLflow                 | End-to-end model lifecycle                  |
+| **Observability** | OpenLineage + Marquez, CloudWatch Dashboards | Lineage graph & near-real-time metrics      |
+| **Fin/Ops & Sec** | AWS Budgets, Infracost, Lake Formation       | Cost guard-rails, column-level masking      |
+
+---
+
+## 🛠  Prerequisites
+
+| Tool                 | Minimum Version | Purpose                |
+| -------------------- | --------------- | ---------------------- |
+| **AWS CLI**          | v2.15           | Deploy & operate       |
+| **Terraform**        | v1.6            | Infrastructure as Code |
+| **Docker + Compose** | 24.x            | Local runners & Kafka  |
+| **Git**              | 2.40            | Clone & tag checkout   |
+| **bash / zsh**       | —               | Runs helper scripts    |
+
+> You’ll need an AWS account with permission to create S3, Glue, IAM, MSK, and SageMaker resources.
+> **Tip:** Use a *fresh* sub-account or an *AWS Control Tower sandbox* to keep billing and policy boundaries clean.
+
+---
+
+## ⚡️  Quick Start ( ≈ 30 min )
 
 ```bash
-# (Optional) Work on the frozen release tag
-git checkout v0.9.0
+# 1. Clone the repo
+git clone https://github.com/mikieto/lakehouse-code.git
+cd lakehouse-code
 
-# Full hands-on (≈ 30 min, uses real AWS services)
-./quick-start.sh --use-serverless
+# 2. (Optional) work on the latest stable tag
+# git checkout v0.9.0
 
-# CI smoke test (local & free)
-./quick-start.sh --smoke --local-mode
+# 3. Deploy — this creates all serverless resources in your default AWS region
+./quick-start.sh --deploy                # ≈ 20-25 min
 
+# 4. Smoke-test the full Bronze→Gold path
+./scripts/run_demo_queries.sh            # < 1 min
+
+# 5. Explore
+open "https://us-east-1.console.aws.amazon.com/athena/home"     # query tables
+open "http://localhost:3000"                                    # Marquez UI
 ```
+
+### Tear Down  (≈ 3 min)
+
+```bash
+./quick-start.sh --destroy               # Deletes every resource created by this repo
+```
+
+*The guard CI job runs the same workflow non-interactively; see `.github/workflows/guard.yml`.*
+
+---
+
+## ✅  What Counts as “Success”?
+
+<!-- BEGIN EXIT_CRITERIA -->
+| # | Objective Check | Pass Condition | Verifier |
+|---|-----------------|----------------|----------|
+| 1 | **30-min deploy** | `make up` completes in ≤ 30 min | CI stopwatch artefact |
+| 2 | **Data loop** | CSV → Iceberg → Athena returns a row | `run_demo_queries.sh` |
+| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `guard.yml` |
+| 4 | **Lineage graph** | Marquez UI shows ≥ 1 job/node | Screenshot |
+| 5 | **100 % IaC** | `terraform plan` shows 0 unmanaged | Guard output |
+| 6 | **Security baseline** | Lake Formation column mask hides **ssn** | SQL test |
+| 7 | **Fin/Obs guards** | Budgets alarm + CloudWatch dashboard with ≥ 3 metrics | Terraform outputs |
+<!-- END EXIT_CRITERIA -->
+
+If all seven pass, you’ve reproduced the full 30-minute Lakehouse.
+
+---
+
+## 🧰  Useful Make Targets
+
+| Command      | Action                                        |
+| ------------ | --------------------------------------------- |
+| `make plan`  | Dry-run Terraform                             |
+| `make up`    | Same as `quick-start.sh --deploy`             |
+| `make nuke`  | Same as `quick-start.sh --destroy`            |
+| `make smoke` | Local Docker-only pipeline test (no AWS cost) |
+
+---
+
+## 🤝  Contributing
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Run `make test` (lint + unit) **and** `make smoke`.
+4. Open a PR — the guard workflow must be green.
+
+See **`CONTRIBUTING.md`** for tag conventions and review check-lists.
+
+---
+
+## 🏷  License & Cost Footnote
+
+Distributed under the **MIT License**.
+The *≤ US \$20/mo* badge assumes **us-east-1**, default dataset size (< 1 GB), and no SageMaker GPU usage. Heavy workloads can exceed this — **set Budgets alerts** before experimenting.
+
+---
+
+### Happy Building! 🎉
+
+*Questions or feedback?* Open an issue or reach out on Twitter [@mikieto](https://twitter.com/mikieto).

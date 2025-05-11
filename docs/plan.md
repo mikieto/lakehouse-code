@@ -1,96 +1,104 @@
-# Project Plan — *lakehouse‑code*
+# Project Plan — *lakehouse-code*
 
-> **Scope** – Freeze a **complete, runnable Lakehouse codebase (v0.9)** in Prep Week, then keep it green with CI guard rails. Book‑writing timeline is tracked in *lakehouse‑book*.
-
----
-
-## 1. Purpose (WHY)
-
-Make it possible for any learner to deploy & tear down a fully managed Bronze → Gold Lakehouse in **≤ 30 minutes** for **≤ \$20 USD / ¥3 000 JPY per month** — code first, docs later.
+> **Mission** – Deliver a *Skeleton Lakehouse* that any learner can spin up, verify, and tear down in **≤ 30 minutes**, with **CI green** and **seven objective exit checks**.  
+> *This file is the **single source of truth** for the exit-criteria table; when you update it, copy & paste the fenced block into `README.md` and `lakehouse-book/docs/00-project-plan.md`.*
 
 ---
 
-## 2. Goals (WHAT)
+## 1  Purpose (WHY)
 
-### 2.1 World‑State KPI
-
-| KPI                   | Target   | Validation                |
-| --------------------- | -------- | ------------------------- |
-| Quick‑Start runtime   | ≤ 30 min | CI smoke + stopwatch      |
-| Pipeline success rate | ≥ 95 %   | `e2e.yml` workflow        |
-| p95 query latency     | < 200 ms | Locust load test          |
-| MTTR                  | < 30 min | Chaos script + alert test |
-
-### 2.2 Policy‑Norm KPI
-
-| Metric                 | Target          | Enforcement         |
-| ---------------------- | --------------- | ------------------- |
-| Monthly AWS cost       | ≤ \$20 / ¥3 000 | Infracost + Budgets |
-| CO₂ / month            | ≤ 50 kg         | Carbon‑Calc script  |
-| SBOM & cosign coverage | 100 %           | `sbom.yml` workflow |
-| Data‑contract pass     | 100 % tables    | Great Expectations  |
+Enable instant, cost-safe experimentation.  
+Learners should achieve a *first win in thirty minutes* on a clean AWS account, then dig deeper layer-by-layer.
 
 ---
 
-## 3. Execution (HOW)
+## 2  Exit Criteria – **Skeleton-Done**
 
-1. **Prep Week – Code v0.9 freeze**
+> **Always edit the table *here*.** Copy the entire `BEGIN/END` block to other docs when it changes.
 
-   * Terraform/CDK for all resources (Bronze→Gold, MLflow→SageMaker, Backstage on App Runner)
-   * Sample data (orders/users CSV) loaded
-   * Guard CI (`guard.yml`, `smoke.yml`, `infra.yml`) passes
-   * Tag **`v0.9.0`** pushed
-2. **Policy‑as‑Code & Fin/Green‑Ops**
+<!-- BEGIN EXIT_CRITERIA -->
+| # | Objective Check | Pass Condition | Verifier |
+|---|-----------------|----------------|----------|
+| 1 | **30-min deploy** | `make up` completes in ≤ 30 min | CI stopwatch artifact |
+| 2 | **Data loop** | CSV → Iceberg → Athena returns a row | `run_demo_queries.sh` |
+| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `guard.yml` |
+| 4 | **Lineage graph** | Marquez UI shows ≥ 1 job/node | Screenshot |
+| 5 | **100 % IaC** | `terraform plan` shows 0 unmanaged | Guard output |
+| 6 | **Security baseline** | Lake Formation column mask hides **ssn** | SQL test |
+| 7 | **Fin/Obs guards** | Budgets alarm + CloudWatch dashboard with ≥ 3 metrics | Terraform outputs |
+<!-- END EXIT_CRITERIA -->
 
-   * OPA/Rego, tfsec, Infracost, Budgets
-   * 12‑hour auto‑Destroy cron for disposable services
-3. **SBOM + cosign** – Syft generates SPDX, `infra.yml` signs via GitHub OIDC.
-4. **Two‑person PR → auto‑apply** – Protected branches `infra/*` & `pipelines/*`.
-5. **Smoke → Full E2E** – `quick-start.sh --smoke` local, then `--use-serverless`.
-
----
-
-## 4. Timeline
-
-| Phase                  | Deliverables                                                                               | CI Gate                           |
-| ---------------------- | ------------------------------------------------------------------------------------------ | --------------------------------- |
-| **Prep Week (Step 0)** | • **Code v0.9 tag** (Bronze→Gold, MLflow→SageMaker, Backstage Catalog)<br>• Guard CI green | `guard.yml` + `smoke.yml` passing |
-| **Maintenance (W1 +)** | • Weekly dependency bump<br>• CI keep‑green                                                | CI passes                         |
+*The first commit that passes all seven checks is tagged **`skeleton-done`** and freezes the base for further work.*
 
 ---
 
-## 5. Done Criteria
+## 3  Key Performance Indicators
 
-* [ ] Quick‑Start deploys in ≤ 30 min, reproducible
-* [ ] All KPI / Policy‑Norm targets met
-* [ ] README badges *passing*
-* [ ] `CHANGELOG` updated & Git tag `v0.9.0` pushed
-
----
-
-## 6. Ownership
-
-| Area                  | Owner         | Reviewers     |
-| --------------------- | ------------- | ------------- |
-| Infra (Terraform/CDK) | @platform‑sre | @data‑eng     |
-| Pipelines & ETL       | @data‑eng     | @platform‑sre |
-| CI / Guard            | @platform‑sre | @editor       |
+| KPI | Target | Validation |
+|-----|--------|------------|
+| Quick-Start runtime | ≤ 30 min | CI stopwatch |
+| Monthly AWS cost | ≤ US $20 | Infracost + Budgets alert test |
+| CI success streak | ≥ 95 % | `e2e.yml` history |
+| Data-contract pass rate | 100 % tables | Great Expectations |
 
 ---
 
-## 7. Risks & Mitigations
+## 4  Execution Roadmap
 
-| Risk               | Impact                | Mitigation                         |
-| ------------------ | --------------------- | ---------------------------------- |
-| Prep Week slip     | Book schedule delayed | Scope lock + daily stand‑up        |
-| AWS cost spike     | Learner churn         | Budgets alert + nightly Destroy    |
-| Service API change | CI fails              | Pin versions + weekly update check |
+| Sprint | Focus | Major Tasks | Owner |
+|--------|-------|-------------|-------|
+| **S-0 Bootstrap** | Local smoke + DevContainer | Dockerised Kafka + MinIO, `make smoke` | Data Eng |
+| **S-1 Skeleton Deploy** | AWS serverless stack | Terraform modules, `quick-start.sh` | Platform SRE |
+| **S-2 Quality & Lineage** | GE tests + Marquez | Seed expectations, OpenLineage | Data Eng |
+| **S-3 Fin/Sec Guard-rails** | Budgets + Lake Formation | Cost alarm, column mask | SecOps |
+| **S-4 CI Hardening** | Repeatability | Guard matrix, optional self-hosted runner | DevOps |
+| **S-5 Freeze** | Tag & docs sync | Stopwatch proof, push `skeleton-done` | All |
 
 ---
 
-### ✍️ Change Log
+## 5  Timeline (Weeks)
 
-| Date       | Author  | Summary                                     |
-| ---------- | ------- | ------------------------------------------- |
-| 2025‑05‑11 | @editor | Replace plan with Code v0.9 freeze timeline |
-| 2025-05-11 | @editor | Revise for code-first (v0.9) release        |
+| Week | Deliverables | CI Gate |
+|------|--------------|---------|
+| **W0** | DevContainer + local smoke green | `smoke.yml` |
+| **W1** | Serverless deploy ≤ 30 min | `deploy.yml` |
+| **W2** | Lineage & GE tests pass | `e2e.yml` |
+| **W3** | Budgets, mask, IaC 100 % | `guard.yml` |
+| **W4** | **`skeleton-done` tag** + artefacts | Manual stopwatch + CI |
+
+---
+
+## 6  Ownership
+
+| Area | Primary | Reviewers |
+|------|---------|-----------|
+| Terraform modules | @platform-sre | @secops |
+| Pipelines & GE | @data-eng | @platform-sre |
+| CI / DevEx | @devops | @editor |
+
+---
+
+## 7  Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|-----------|
+| Provisioning > 30 min | Exit #1 fails | Switch fully to serverless; downsize MSK |
+| AWS cost spike | Learner churn | Nightly `make nuke`; Budgets “stop-spend” |
+| Lineage collector bug | Exit #4 fails | Pin OpenLineage version; health check |
+
+---
+
+## 8  Done Checklist
+
+- [ ] All seven exit checks pass (`skeleton-done` tag)  
+- [ ] README Quick-Start verified from fresh laptop  
+- [ ] Cost & CO₂ badges green  
+- [ ] CHANGELOG updated  
+
+---
+
+### ✍️ Change Log
+
+| Date | Author | Summary |
+|------|--------|---------|
+| 2025-05-11 | @editor | Mark plan.md as canonical for Exit Criteria; added BEGIN/END block |

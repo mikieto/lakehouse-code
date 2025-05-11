@@ -1,15 +1,16 @@
 # ====================================================================
-# File: .github/workflows/guard.yml
-# Purpose: PR label gate + minimal tfsec / OPA pass (echo in v0.9)
+# File: .github/workflows/infra.yml
+# Purpose: Build SBOM → cosign sign → run Great Expectations checks
 # ====================================================================
-name: Guard CI
+name: Infra Guard
 
 on:
   pull_request:
-    types: [opened, synchronize, labeled, reopened]
+    paths: [ 'infra/**', 'pipelines/**' ]
+    types: [opened, synchronize, labeled]
 
 jobs:
-  guard:
+  infra:
     if: >-
       contains(join(github.event.pull_request.labels.*.name, ','), 'environment:') &&
       contains(join(github.event.pull_request.labels.*.name, ','), 'norm:')
@@ -18,9 +19,15 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-
+        
       - name: "Run common setup"
         uses: ./.github/actions/common
 
-      - name: "tfsec placeholder"
-        run: echo "tfsec placeholder → always green on v0.9"
+      - name: "Generate SBOM (stub)"
+        run: echo "Syft SBOM generation stub"
+
+      - name: "Sign SBOM with cosign (stub)"
+        run: echo "cosign sign stub"
+
+      - name: "Great Expectations data contract (stub)"
+        run: echo "GE contract check stub"
