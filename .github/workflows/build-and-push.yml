@@ -1,4 +1,4 @@
-# .github/workflows/build-push.yml
+# .github/workflows/build-and-push.yml
 name: Build & Push DevContainer image
 
 permissions:

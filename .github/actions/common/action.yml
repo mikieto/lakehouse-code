@@ -1,0 +1,21 @@
+# ====================================================================
+# File: .github/actions/common/action.yml
+# Purpose: Composite action used by guard, smoke and infra workflows
+# ====================================================================
+name: common
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Set up Python"
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    # Install project tooling — terraform, tfsec, etc. (stub for now)
+    - name: "Install dependencies"
+      shell: bash
+      run: |
+        pip install --quiet pre-commit
+        echo "tooling installed"
