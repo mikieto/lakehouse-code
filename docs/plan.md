@@ -47,6 +47,15 @@ Make it possible for any learner to deploy & tear down a fully managed Bronze 
 3. **SBOM + cosign** – Syft generates SPDX, `infra.yml` signs via GitHub OIDC.
 4. **Two‑person PR → auto‑apply** – Protected branches `infra/*` & `pipelines/*`.
 5. **Smoke → Full E2E** – `quick-start.sh --smoke` local, then `--use-serverless`.
+6. **Cost hardening tweaks**
+
+   * **App Runner Auto‑Pause** enabled (0 ACU when idle) to cut always‑on cost.
+   * **Grafana dashboards** migrated to CloudWatch + CloudFront; Managed Grafana becomes *optional* add‑on.
+7. **Rapid‑win simplifications**
+
+   * **Composite GitHub Action** – extract common steps in `guard`, `smoke`, `infra` to `./.github/actions/common`, reducing YAML duplication.
+   * **Slim Makefile** with 5 targets: `deploy`, `smoke`, `destroy`, `lint`, `docs`; gives learners one‑liner commands.
+   * **Flat Terraform root** – v0.9 can live in a single root module; deeper modules are optional refactors, lowering onboarding time.
 
 ---
 
@@ -92,5 +101,6 @@ Make it possible for any learner to deploy & tear down a fully managed Bronze 
 
 | Date       | Author  | Summary                                     |
 | ---------- | ------- | ------------------------------------------- |
+| 2025‑05‑11 | @editor | Add cost tweaks/quick-win simplifications   |
 | 2025‑05‑11 | @editor | Replace plan with Code v0.9 freeze timeline |
 | 2025-05-11 | @editor | Revise for code-first (v0.9) release        |
