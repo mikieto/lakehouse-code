@@ -8,9 +8,10 @@ repos:
 
   # --- Markdown lint (Node CLI) ------------------------------------------
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.39.0
+    rev: v0.40.0
     hooks:
       - id: markdownlint
+        language_version: "18.20.2"
         entry: markdownlint --disable MD013   # disable long-line rule
         files: \.(md|markdown)$
 
