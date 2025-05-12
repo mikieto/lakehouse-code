@@ -1,4 +1,5 @@
 # athena.tf
+
 resource "aws_athena_workgroup" "lakehouse" {
   name = "${var.prefix}_wg"
 
