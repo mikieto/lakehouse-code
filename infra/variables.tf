@@ -15,3 +15,8 @@ variable "budget_email" {
   description = "E-mail address for cost-alert notifications"
   type        = string
 }
+
+variable "env" {
+  description = "Environment name (ci | dev | prod)"
+  type        = string
+}

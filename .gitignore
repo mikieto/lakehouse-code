@@ -10,6 +10,7 @@ pipelines/target/
 *.tfplan
 crash.log
 *.tf.log
+*.tfbackend
 
 # Infracost
 infracost-output*
