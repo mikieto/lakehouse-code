@@ -4,6 +4,8 @@ scaffold.sh
 pipelines/logs/
 pipelines/target/
 
+.env
+
 # Terraform
 **/.terraform/
 *.tfstate*
