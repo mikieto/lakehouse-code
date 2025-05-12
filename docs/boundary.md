@@ -1,17 +1,11 @@
-# Boundary Table (v0.9)
+<!-- markdownlint-disable MD013 -->
+# Sprint S-1 — Boundary Definition
 
-| Layer  | Component / Asset                | Owner (GitHub) |
-|--------|----------------------------------|----------------|
-| Domain | Orders API (placeholder)         | @app-dev       |
-| Domain | Payments API (placeholder)       | @app-dev       |
-| Data   | Bronze S3 bucket                 | @data-eng      |
-| Data   | Silver Iceberg table             | @data-eng      |
-| Data   | Gold Athena view                 | @data-eng      |
-| Service| EMR Serverless Spark job         | @platform-sre  |
-| Service| Glue Streaming (CDC)             | @platform-sre  |
-| Service| SageMaker Serverless endpoint    | @platform-sre  |
-| Service| Backstage (App Runner)           | @platform-sre  |
-
-> **NOTE**
-> 追加リソースが増えたら *Layer / Component / Owner* の 3 列を増やし、
-> 空行を残さないでください。
+| Item | Content |
+|------|---------|
+| **Goal** | Deploy a **serverless AWS stack** in ≤ 30 min and prove the CSV → Iceberg → Athena round-trip. |
+| **In-Scope** | S3 buckets (`raw/iceberg`), Glue Catalog DB & Iceberg table, Athena WorkGroup. |
+| **Out-of-Scope** | Kafka / streaming, Lake Formation masking, Marquez lineage, MLOps, cost optimisation beyond Budgets. |
+| **Done Definition** | Exit Criteria **#1 – #3** pass and a Budgets stop-spend rule is active. |
+| **Constraints** | **Monthly cost ≤ US $20**, CI deploy job timeout 20 min. |
+| **Milestone Tag** | `s1-complete` |

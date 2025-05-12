@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 -->
 # Project Plan — *lakehouse-code*
 
 > **Mission** – Deliver a *Skeleton Lakehouse* that any learner can spin up, verify, and tear down in **≤ 30 minutes**, with **CI green** and **seven objective exit checks**.  
@@ -58,13 +59,13 @@ Learners should achieve a *first win in thirty minutes* on a clean AWS account, 
 
 ## 5  Timeline (Weeks)
 
-| Week | Deliverables | CI Gate |
-|------|--------------|---------|
-| **W0** | DevContainer + local smoke green | `smoke.yml` |
-| **W1** | Serverless deploy ≤ 30 min | `deploy.yml` |
-| **W2** | Lineage & GE tests pass | `e2e.yml` |
-| **W3** | Budgets, mask, IaC 100 % | `guard.yml` |
-| **W4** | **`skeleton-done` tag** + artefacts | Manual stopwatch + CI |
+| Week | Deliverables | CI Gate | Status |
+|------|--------------|---------|--------|
+| **W0** | DevContainer + local smoke green | `smoke.yml` | ✅ |
+| **W1** | Serverless deploy ≤ 30 min | `deploy.yml` ||
+| **W2** | Lineage & GE tests pass | `e2e.yml` ||
+| **W3** | Budgets, mask, IaC 100 % | `guard.yml` ||
+| **W4** | **`skeleton-done` tag** + artefacts | Manual stopwatch + CI ||
 
 ---
 
