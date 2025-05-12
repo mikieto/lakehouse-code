@@ -23,7 +23,8 @@ jobs:
           cd infra
           terraform init -input=false
           start=$(date +%s)
-          terraform apply -auto-approve -input=false
+          terraform apply -auto-approve -input=false \
+            -var="budget_email=${{ secrets.BUDGET_EMAIL }}"
           end=$(date +%s)
           echo "{\"runtime_sec\":$((end-start))}" > /tmp/stopwatch.json
 
