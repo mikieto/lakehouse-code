@@ -1,0 +1,38 @@
+name: infracost
+
+on:
+  pull_request:
+    paths:
+      - "infra/**"
+      - ".github/workflows/deploy.yml"
+
+jobs:
+  cost:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: infracost/actions/setup@v2      # installs CLI
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Breakdown
+        run: |
+          infracost breakdown --path=infra \
+            --format=json \
+            --out-file=/tmp/infracost.json
+
+
+      # ---- Post a PR comment with the cost diff ----
+      - name: Post cost comment
+        if: github.event_name == 'pull_request'
+        run: |
+          infracost comment github \
+            --path=/tmp/infracost.json \
+            --behavior=update \
+            --repo=${{ github.repository }} \
+            --pull-request=${{ github.event.pull_request.number }} \
+            --github-token=${{ github.token }}
+
+
