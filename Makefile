@@ -1,3 +1,3 @@
-.PHONY: deploy-foundation
-deploy-foundation:
-	terraform -chdir=infra init -backend=false
+.PHONY: up nuke
+up:    ; ./scripts/quick-start.sh --deploy
+nuke:  ; ./scripts/quick-start.sh --nuke
