@@ -1,11 +1,12 @@
 # s3.tf - two buckets: raw landing & Iceberg tables
+
 resource "aws_s3_bucket" "raw" {
-  bucket        = "${var.prefix}-raw"
+  bucket        = "${local.full_prefix}-raw"
   force_destroy = true
 }
 
 resource "aws_s3_bucket" "iceberg" {
-  bucket        = "${var.prefix}-iceberg"
+  bucket        = "${local.full_prefix}-iceberg"
   force_destroy = true
 }
 

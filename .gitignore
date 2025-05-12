@@ -4,12 +4,15 @@ scaffold.sh
 pipelines/logs/
 pipelines/target/
 
+.env
+
 # Terraform
 **/.terraform/
 *.tfstate*
 *.tfplan
 crash.log
 *.tf.log
+*.tfbackend
 
 # Infracost
 infracost-output*

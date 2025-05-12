@@ -16,7 +16,11 @@ jobs:
       contents: read         # checkout needs this (defaults to read)
 
     env:
-      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_REGION:  ${{ vars.AWS_REGION || 'us-east-1' }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      LOCK_TABLE:   ${{ vars.LOCK_TABLE }}
+      TF_VAR_budget_email: ${{ secrets.BUDGET_EMAIL }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,18 +34,38 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform apply
+      # -------- CI workspace cleanup --------
+      - name: Destroy CI workspace (best-effort)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
         run: |
           cd infra
-          terraform init -input=false
+          terraform init -input=false \
+            -backend-config="bucket=${STATE_BUCKET}" \
+            -backend-config="key=ci/terraform.tfstate" \
+            -backend-config="region=${AWS_REGION}" \
+            -backend-config="dynamodb_table=${LOCK_TABLE}"
+          terraform workspace select ci || terraform workspace new ci
+          terraform destroy -auto-approve -input=false
+
+      # -------- Prod apply (main branch) ----
+      - name: Terraform apply prod
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd infra
+          terraform init -input=false \
+            -backend-config="bucket=${STATE_BUCKET}" \
+            -backend-config="key=ci/terraform.tfstate" \
+            -backend-config="region=${AWS_REGION}" \
+            -backend-config="dynamodb_table=${LOCK_TABLE}"
+          terraform workspace select prod || terraform workspace new prod
           start=$(date +%s)
-          terraform apply -auto-approve -input=false \
-            -var="budget_email=${{ secrets.BUDGET_EMAIL }}"
-          end=$(date +%s)
-          echo "{\"runtime_sec\":$((end-start))}" > /tmp/stopwatch.json
+          terraform apply -auto-approve -input=false -var="env=prod"
+          echo "{\"runtime_sec\":$(( $(date +%s)-start ))}" > /tmp/stopwatch.json
 
       - name: Upload stopwatch artifact
         uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/main'
         with:
           name: stopwatch
           path: /tmp/stopwatch.json
