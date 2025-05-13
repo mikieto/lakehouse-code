@@ -24,7 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-
       - name: Run quick-start smoke
         run: |
           chmod +x ./scripts/quick-start.sh
