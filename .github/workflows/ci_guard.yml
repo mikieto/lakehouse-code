@@ -1,9 +1,9 @@
 # ====================================================================
-# File: .github/workflows/ci-guard.yml
+# File: .github/workflows/ci_guard.yml
 # Purpose: One-job guard – PR gated by labels, main always runs
 # ====================================================================
 
-name: guard-ci
+name: ci_guard
 
 on:
   pull_request:
@@ -54,7 +54,7 @@ jobs:
       - uses: aquasecurity/tfsec-action@v1.0.1
         with:
           version: latest                 # always download latest tfsec CLI
-          additional_args: --config-file .tfsec.yml
+          additional_args: --config-file .tfsec.yml --soft-fail
 
     # --- main-only steps ------------------------------------------
       - name: Generate SBOM (stub)

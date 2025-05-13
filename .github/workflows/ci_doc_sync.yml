@@ -1,7 +1,7 @@
-name: doc-sync-ci
+name: ci_doc_sync
 on:
   push:
-    paths: [ "docs/project-plan.md" ]
+    paths: [ "docs/project_plan.md" ]
 jobs:
   sync:
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
-# c-infracost.yml
+# ci_infracost.yml
 
-name: infracost-ci
+name: ci_infracost
 
 on:
   pull_request:

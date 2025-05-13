@@ -1,8 +1,8 @@
 # 🚀 **30-Minute Self-Service Lakehouse**
 
-| Guard | License | Cost ≤ US $20 / month |
-|-------|---------|-----------------------|
-| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/guard.yml?label=guard\&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
+| Guard | Plan-Apply | License | Cost ≤ US $20 / month |
+|-------|------------|---------|-----------------------|
+| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/guard.yml?label=guard\&logo=github) | ![plan-apply](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_plan_apply.yml?label=plan-apply&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
 
 > **Spin up — learn — tear down** a fully-managed, serverless Lakehouse in **under 30 minutes**.
 > All cloud resources can be kept below **US \$20/month** with the default settings.
@@ -50,7 +50,7 @@ cd lakehouse-code
 # git checkout v0.9.0
 
 # 3. Deploy — this creates all serverless resources in your default AWS region
-./scripts/quick-start.sh --deploy                # ≈ 20-25 min
+./scripts/quick_start.sh --deploy                # ≈ 20-25 min
 
 # 4. Smoke-test the full Bronze→Gold path
 ./scripts/run_demo_queries.sh            # < 1 min
@@ -63,7 +63,7 @@ open "http://localhost:3000"                                    # Marquez UI
 ### Tear Down  (≈ 3 min)
 
 ```bash
-./scripts/quick-start.sh --destroy               # Deletes every resource created by this repo
+./scripts/quick_start.sh --destroy               # Deletes every resource created by this repo
 ```
 
 *The guard CI job runs the same workflow non-interactively; see `.github/workflows/guard.yml`.*
@@ -93,8 +93,8 @@ If all seven pass, you’ve reproduced the full 30-minute Lakehouse.
 | Command      | Action                                        |
 | ------------ | --------------------------------------------- |
 | `make plan`  | Dry-run Terraform                             |
-| `make up`    | Same as `quick-start.sh --deploy`             |
-| `make nuke`  | Same as `quick-start.sh --destroy`            |
+| `make up`    | Same as `quick_start.sh --deploy`             |
+| `make nuke`  | Same as `quick_start.sh --destroy`            |
 | `make smoke` | Local Docker-only pipeline test (no AWS cost) |
 
 ---

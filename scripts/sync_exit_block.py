@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import re, pathlib, sys
 
-SRC = pathlib.Path("docs/project-plan.md")
+SRC = pathlib.Path("docs/project_plan.md")
 if not SRC.exists():
     sys.exit("docs/project-plan.md not found")
 
