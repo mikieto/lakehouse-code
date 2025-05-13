@@ -1,0 +1,19 @@
+name: doc-sync-ci
+on:
+  push:
+    paths: [ "docs/project-plan.md" ]
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make sync-docs
+      - name: Commit & push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git add README.md
+            git commit -m "docs: auto-sync EXIT_CRITERIA to README"
+            git push
+          fi

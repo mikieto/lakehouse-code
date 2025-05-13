@@ -1,0 +1,38 @@
+# ====================================================================
+# File: .github/workflows/ci-smoke.yml
+# Purpose: Run quick-start smoke test on local Docker compose
+# ====================================================================
+
+name: smoke-ci
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'scripts/quick-start.sh', '**/docker-compose*', 'Makefile' ]
+  pull_request:
+    paths: [ 'scripts/quick-start.sh', '**/docker-compose*', 'Makefile' ]
+  workflow_dispatch:
+
+jobs:
+  smoke-ci:
+    # allow skipping via label “skip-smoke”
+    if: github.event_name != 'pull_request' ||
+        !contains(join(github.event.pull_request.labels.*.name, ','), 'skip-smoke')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/common
+
+      - name: Run quick-start smoke
+        run: |
+          chmod +x ./scripts/quick-start.sh
+          ./scripts/quick-start.sh --smoke --local-mode
+
+      - name: Smoke summary
+        if: always()
+        run: |
+          echo "### Smoke Test Result"            >> $GITHUB_STEP_SUMMARY
+          echo "workflow = ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
