@@ -1,35 +1,38 @@
-# .github/workflows/smoke.yml
-name: Smoke Test
+# ====================================================================
+# File: .github/workflows/ci-smoke.yml
+# Purpose: Run quick-start smoke test on local Docker compose
+# ====================================================================
+
+name: smoke-ci
 
 on:
   push:
     branches: [ main ]
-    paths: [ 'quick-start.sh', '**/docker-compose*', 'Makefile' ]
+    paths: [ 'scripts/quick-start.sh', '**/docker-compose*', 'Makefile' ]
   pull_request:
-    paths: [ 'quick-start.sh', '**/smoke.yml', '**/docker-compose*', 'Makefile' ]
+    paths: [ 'scripts/quick-start.sh', '**/docker-compose*', 'Makefile' ]
   workflow_dispatch:
 
 jobs:
-  smoke:
+  smoke-ci:
+    # allow skipping via label “skip-smoke”
     if: github.event_name != 'pull_request' ||
         !contains(join(github.event.pull_request.labels.*.name, ','), 'skip-smoke')
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Common setup
-        uses: ./.github/actions/common
+      - uses: ./.github/actions/common
 
-      - name: Run smoke script
+      - name: Run quick-start smoke
         run: |
-          chmod +x ./quick-start.sh
-          ./quick-start.sh --smoke --local-mode
+          chmod +x ./scripts/quick-start.sh
+          ./scripts/quick-start.sh --smoke --local-mode
 
       - name: Smoke summary
         if: always()
         run: |
-          echo "### Smoke Test Result" >> $GITHUB_STEP_SUMMARY
-          echo "Workflow: ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Smoke Test Result"            >> $GITHUB_STEP_SUMMARY
+          echo "workflow = ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
