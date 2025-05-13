@@ -50,7 +50,7 @@ cd lakehouse-code
 # git checkout v0.9.0
 
 # 3. Deploy — this creates all serverless resources in your default AWS region
-./quick-start.sh --deploy                # ≈ 20-25 min
+./scripts/quick-start.sh --deploy                # ≈ 20-25 min
 
 # 4. Smoke-test the full Bronze→Gold path
 ./scripts/run_demo_queries.sh            # < 1 min
@@ -63,7 +63,7 @@ open "http://localhost:3000"                                    # Marquez UI
 ### Tear Down  (≈ 3 min)
 
 ```bash
-./quick-start.sh --destroy               # Deletes every resource created by this repo
+./scripts/quick-start.sh --destroy               # Deletes every resource created by this repo
 ```
 
 *The guard CI job runs the same workflow non-interactively; see `.github/workflows/guard.yml`.*

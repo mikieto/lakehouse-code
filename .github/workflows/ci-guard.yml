@@ -1,50 +1,67 @@
 # ====================================================================
-# File: .github/workflows/guard.yml
-# Purpose: Enforce PR label gate and run a lightweight guard on main
+# File: .github/workflows/ci-guard.yml
+# Purpose: Enforce PR label gate and run IaC + security checks
 # ====================================================================
 
-name: Guard CI          # The check name that appears in the PR
+name: guard-ci
 
 on:
-  # --- PR gate ------------------------------------------------------
   pull_request:
     types: [opened, synchronize, labeled, reopened]
-
-  # --- Main-branch watchdog ----------------------------------------
   push:
-    branches: [ main ]  # Run after every merge or direct push to main
+    branches: [ main ]
 
 jobs:
-  # -----------------------------------------------------------------
-  # PR job – only runs when both required labels are present
-  # -----------------------------------------------------------------
-  guard-pr:
+  iac-guard-pr:
     if: github.event_name == 'pull_request' &&
         contains(join(github.event.pull_request.labels.*.name, ','), 'environment:') &&
         contains(join(github.event.pull_request.labels.*.name, ','), 'norm:')
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/common
 
-      - name: Common setup
-        uses: ./.github/actions/common
+      - name: Run terraform fmt (check)
+        run: terraform fmt -recursive -check
 
-      - name: tfsec placeholder (PR gate)
-        run: echo "tfsec placeholder – PR gate"
+      - name: Terraform validate
+        run: terraform init -backend=false && terraform validate
 
-  # -----------------------------------------------------------------
-  # Main job – always runs on pushes to main (no label filter)
-  # -----------------------------------------------------------------
-  guard-main:
+      - name: Run tfsec
+        run: tfsec --config-file .tfsec.yml
+
+      - name: Run tflint
+        run: |
+          tflint --init
+          tflint
+
+  iac-guard-main:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/common
 
-      - name: Common setup
-        uses: ./.github/actions/common
+      - name: Run terraform fmt (check)
+        run: terraform fmt -recursive -check
 
-      - name: tfsec placeholder (main gate)
-        run: echo "tfsec placeholder – main gate"
+      - name: Terraform validate
+        run: terraform init -backend=false && terraform validate
+
+      - name: Run tfsec
+        run: tfsec --config-file .tfsec.yml
+
+      - name: Run tflint
+        run: |
+          tflint --init
+          tflint
+
+      # --- SBOM / cosign / GE stubs --------------------------------
+      - name: Generate SBOM (stub)
+        run: echo "Syft SBOM generation stub"
+
+      - name: Sign SBOM with cosign (stub)
+        run: echo "cosign sign stub"
+
+      - name: Great Expectations data contract (stub)
+        run: echo "GE contract check stub"
