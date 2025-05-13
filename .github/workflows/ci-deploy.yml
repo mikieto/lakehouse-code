@@ -1,4 +1,4 @@
-name: deploy-ci
+name: deploy
 
 # Manual trigger and automatic trigger on pushes to main
 on:

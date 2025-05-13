@@ -1,6 +1,6 @@
 # ====================================================================
 # File: .github/workflows/ci-guard.yml
-# Purpose: Enforce PR label gate and run IaC + security checks
+# Purpose: One-job guard – PR gated by labels, main always runs
 # ====================================================================
 
 name: guard-ci
@@ -12,56 +12,59 @@ on:
     branches: [ main ]
 
 jobs:
-  iac-guard-pr:
-    if: github.event_name == 'pull_request' &&
+  iac-guard:
+    # ---------------------------------------------------------------
+    # Job condition:
+    #   • push  → always run
+    #   • pull_request → run only if both required labels are present
+    # ---------------------------------------------------------------
+    if: |
+      github.event_name == 'push' ||
+      (
+        github.event_name == 'pull_request' &&
         contains(join(github.event.pull_request.labels.*.name, ','), 'environment:') &&
         contains(join(github.event.pull_request.labels.*.name, ','), 'norm:')
+      )
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/common
 
-      - name: Run terraform fmt (check)
+    steps:
+    # --- Common setup ---------------------------------------------
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4       # stable as of 2025-05
+
+      - uses: terraform-linters/setup-tflint@v1
+        with:
+          tflint_version: v0.51.1         # latest as of 2025-05
+
+    # --- Common IaC checks ----------------------------------------
+      - name: terraform fmt (check)
         run: terraform fmt -recursive -check
 
-      - name: Terraform validate
+      - name: terraform validate
         run: terraform init -backend=false && terraform validate
 
-      - name: Run tfsec
-        run: tfsec --config-file .tfsec.yml
-
-      - name: Run tflint
+      - name: tflint
         run: |
           tflint --init
           tflint
 
-  iac-guard-main:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/common
+      - uses: aquasecurity/tfsec-action@v1.0.1
+        with:
+          version: latest                 # always download latest tfsec CLI
+          additional_args: --config-file .tfsec.yml
 
-      - name: Run terraform fmt (check)
-        run: terraform fmt -recursive -check
-
-      - name: Terraform validate
-        run: terraform init -backend=false && terraform validate
-
-      - name: Run tfsec
-        run: tfsec --config-file .tfsec.yml
-
-      - name: Run tflint
-        run: |
-          tflint --init
-          tflint
-
-      # --- SBOM / cosign / GE stubs --------------------------------
+    # --- main-only steps ------------------------------------------
       - name: Generate SBOM (stub)
+        if: github.event_name == 'push'
         run: echo "Syft SBOM generation stub"
 
       - name: Sign SBOM with cosign (stub)
+        if: github.event_name == 'push'
         run: echo "cosign sign stub"
 
       - name: Great Expectations data contract (stub)
+        if: github.event_name == 'push'
         run: echo "GE contract check stub"
