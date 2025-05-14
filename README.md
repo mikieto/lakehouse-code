@@ -75,9 +75,9 @@ open "http://localhost:3000"                                    # Marquez UI
 <!-- BEGIN EXIT_CRITERIA -->
 | # | Objective Check | Pass Condition | Verifier |
 |---|-----------------|----------------|----------|
-| 1 | **30-min deploy** | `make up` completes in ≤ 30 min ✅ | CI stopwatch artifact |
+| 1 | **30-min deploy** | `make up` completes in ≤ 30 min ✅ | `ci_plan_apply.yml` stopwatch |
 | 2 | **Data loop** | CSV → Iceberg → Athena returns a row ✅ | `run_demo_queries.sh` |
-| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `guard.yml` |
+| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `ci_guard.yml` |
 | 4 | **Lineage graph** | Marquez UI shows ≥ 1 job/node | Screenshot |
 | 5 | **100 % IaC** | `terraform plan` shows 0 unmanaged | Guard output |
 | 6 | **Security baseline** | Lake Formation column mask hides **ssn** | SQL test |
