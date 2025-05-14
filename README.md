@@ -2,7 +2,7 @@
 
 | Guard | Plan-Apply | License | Cost ≤ US $20 / month |
 |-------|------------|---------|-----------------------|
-| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/guard.yml?label=guard\&logo=github) | ![plan-apply](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_plan_apply.yml?label=plan-apply&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
+| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_guard.yml?label=guard\&logo=github) | ![plan-apply](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_plan_apply.yml?label=plan-apply&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
 
 > **Spin up — learn — tear down** a fully-managed, serverless Lakehouse in **under 30 minutes**.
 > All cloud resources can be kept below **US \$20/month** with the default settings.
@@ -29,7 +29,7 @@
 | Tool                 | Minimum Version | Purpose                |
 | -------------------- | --------------- | ---------------------- |
 | **AWS CLI**          | v2.15           | Deploy & operate       |
-| **Terraform**        | v1.6            | Infrastructure as Code |
+| **Terraform**        | v1.7            | Infrastructure as Code |
 | **Docker + Compose** | 24.x            | Local runners & Kafka  |
 | **Git**              | 2.40            | Clone & tag checkout   |
 | **bash / zsh**       | —               | Runs helper scripts    |
@@ -53,7 +53,7 @@ cd lakehouse-code
 ./scripts/quick_start.sh --deploy                # ≈ 20-25 min
 
 # 4. Smoke-test the full Bronze→Gold path
-./scripts/run_demo_queries.sh            # < 1 min
+./spark_demo/run_demo_queries.sh            # < 1 min
 
 # 5. Explore
 open "https://us-east-1.console.aws.amazon.com/athena/home"     # query tables
