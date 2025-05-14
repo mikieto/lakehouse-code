@@ -1,8 +1,8 @@
 # 🚀 **30-Minute Self-Service Lakehouse**
 
-| Guard | License | Cost ≤ US $20 / month |
-|-------|---------|-----------------------|
-| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/guard.yml?label=guard\&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
+| Guard | Plan-Apply | License | Cost ≤ US $20 / month |
+|-------|------------|---------|-----------------------|
+| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/guard.yml?label=guard\&logo=github) | ![plan-apply](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_plan_apply.yml?label=plan-apply&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
 
 > **Spin up — learn — tear down** a fully-managed, serverless Lakehouse in **under 30 minutes**.
 > All cloud resources can be kept below **US \$20/month** with the default settings.
@@ -50,7 +50,7 @@ cd lakehouse-code
 # git checkout v0.9.0
 
 # 3. Deploy — this creates all serverless resources in your default AWS region
-./quick-start.sh --deploy                # ≈ 20-25 min
+./scripts/quick_start.sh --deploy                # ≈ 20-25 min
 
 # 4. Smoke-test the full Bronze→Gold path
 ./scripts/run_demo_queries.sh            # < 1 min
@@ -63,7 +63,7 @@ open "http://localhost:3000"                                    # Marquez UI
 ### Tear Down  (≈ 3 min)
 
 ```bash
-./quick-start.sh --destroy               # Deletes every resource created by this repo
+./scripts/quick_start.sh --destroy               # Deletes every resource created by this repo
 ```
 
 *The guard CI job runs the same workflow non-interactively; see `.github/workflows/guard.yml`.*
@@ -75,9 +75,9 @@ open "http://localhost:3000"                                    # Marquez UI
 <!-- BEGIN EXIT_CRITERIA -->
 | # | Objective Check | Pass Condition | Verifier |
 |---|-----------------|----------------|----------|
-| 1 | **30-min deploy** | `make up` completes in ≤ 30 min ✅ | CI stopwatch artifact |
+| 1 | **30-min deploy** | `make up` completes in ≤ 30 min ✅ | `ci_plan_apply.yml` stopwatch |
 | 2 | **Data loop** | CSV → Iceberg → Athena returns a row ✅ | `run_demo_queries.sh` |
-| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `guard.yml` |
+| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `ci_guard.yml` |
 | 4 | **Lineage graph** | Marquez UI shows ≥ 1 job/node | Screenshot |
 | 5 | **100 % IaC** | `terraform plan` shows 0 unmanaged | Guard output |
 | 6 | **Security baseline** | Lake Formation column mask hides **ssn** | SQL test |
@@ -93,8 +93,8 @@ If all seven pass, you’ve reproduced the full 30-minute Lakehouse.
 | Command      | Action                                        |
 | ------------ | --------------------------------------------- |
 | `make plan`  | Dry-run Terraform                             |
-| `make up`    | Same as `quick-start.sh --deploy`             |
-| `make nuke`  | Same as `quick-start.sh --destroy`            |
+| `make up`    | Same as `quick_start.sh --deploy`             |
+| `make nuke`  | Same as `quick_start.sh --destroy`            |
 | `make smoke` | Local Docker-only pipeline test (no AWS cost) |
 
 ---

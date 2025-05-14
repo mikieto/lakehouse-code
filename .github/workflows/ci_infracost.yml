@@ -1,19 +1,21 @@
-name: infracost
+# ci_infracost.yml
+
+name: ci_infracost
 
 on:
   pull_request:
-    paths:
-      - "infra/**"
-      - ".github/workflows/deploy.yml"
+    paths: [ "**/*.tf", ".github/workflows/ci-deploy.yml" ]
+  push:
+    branches: [ main ]
+    paths: [ "**/*.tf", ".github/workflows/ci-deploy.yml" ]
 
 jobs:
-  cost:
+  infracost-diff:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - uses: infracost/actions/setup@v2      # installs CLI
+      - uses: infracost/actions/setup@v2
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
@@ -23,8 +25,6 @@ jobs:
             --format=json \
             --out-file=/tmp/infracost.json
 
-
-      # ---- Post a PR comment with the cost diff ----
       - name: Post cost comment
         if: github.event_name == 'pull_request'
         run: |
@@ -34,5 +34,3 @@ jobs:
             --repo=${{ github.repository }} \
             --pull-request=${{ github.event.pull_request.number }} \
             --github-token=${{ github.token }}
-
-

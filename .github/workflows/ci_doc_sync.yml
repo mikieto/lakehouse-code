@@ -1,12 +1,15 @@
-name: doc-sync-ci
+name: ci_doc_sync
 on:
   push:
-    paths: [ "docs/project-plan.md" ]
+    paths: [ "docs/project_plan.md" ]
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - run: make sync-docs
       - name: Commit & push if changed
         run: |
