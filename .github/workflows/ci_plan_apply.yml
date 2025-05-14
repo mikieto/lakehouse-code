@@ -5,6 +5,11 @@ on:
       env:            # dev / prod / etc.
         required: true
         type: string
+    secrets:
+      AWS_OIDC_ROLE_ARN:
+        required: true
+      ALERT_EMAIL:
+        required: true 
 
 jobs:
   tf_plan_apply:
