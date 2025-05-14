@@ -15,13 +15,9 @@ jobs:
 
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
+      ROLE_ARN: ${{ secrets.AWS_OIDC_ROLE_ARN }}
 
     steps:
-
-      - name: Debug role arn
-        run: echo "Role to assume: $ROLE_ARN"
-        env:
-          ROLE_ARN: ${{ secrets.AWS_OIDC_ROLE_ARN }}
 
       - uses: actions/checkout@v4
 
