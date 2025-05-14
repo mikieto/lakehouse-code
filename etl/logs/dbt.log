@@ -1,0 +1,64 @@
+[0m04:49:19.328478 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f997cd61ea0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f997bf01690>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f997bf03670>]}
+
+
+============================== 04:49:19.332555 | 9e5f7334-07e2-4e16-a287-36205af348d8 ==============================
+[0m04:49:19.332555 [info ] [MainThread]: Running with dbt=1.9.4
+[0m04:49:19.333045 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'version_check': 'True', 'debug': 'False', 'log_path': 'pipelines/logs', 'fail_fast': 'False', 'profiles_dir': 'pipelines', 'use_colors': 'True', 'use_experimental_parser': 'False', 'empty': 'False', 'quiet': 'False', 'no_print': 'None', 'log_format': 'default', 'static_parser': 'True', 'invocation_command': 'dbt compile --project-dir pipelines --profiles-dir pipelines --target duckdb', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'target_path': 'None', 'introspect': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m04:49:19.336354 [info ] [MainThread]: Error importing adapter: No module named 'dbt.adapters.duckdb'
+[0m04:49:19.336822 [error] [MainThread]: Encountered an error:
+Runtime Error
+  Credentials in profile "mvp", target "duckdb" invalid: Runtime Error
+    Could not find adapter type duckdb!
+[0m04:49:19.338003 [debug] [MainThread]: Resource report: {"command_name": "compile", "command_success": false, "command_wall_clock_time": 0.06283201, "process_in_blocks": "35776", "process_kernel_time": 0.23313, "process_mem_max_rss": "91448", "process_out_blocks": "8", "process_user_time": 1.084953}
+[0m04:49:19.338389 [debug] [MainThread]: Command `dbt compile` failed at 04:49:19.338302 after 0.06 seconds
+[0m04:49:19.338708 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f997cd61ea0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f997bd827d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f997bd839d0>]}
+[0m04:49:19.339030 [debug] [MainThread]: Flushing usage events
+[0m04:49:20.572764 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m04:49:26.892626 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f252a4f1f90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f25295a2fb0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f25295a3af0>]}
+
+
+============================== 04:49:26.895492 | 7a79462f-881d-4d8c-866f-1232571a113d ==============================
+[0m04:49:26.895492 [info ] [MainThread]: Running with dbt=1.9.4
+[0m04:49:26.896272 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': 'pipelines', 'debug': 'False', 'version_check': 'True', 'log_path': 'pipelines/logs', 'fail_fast': 'False', 'warn_error': 'None', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'empty': 'False', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'static_parser': 'True', 'invocation_command': 'dbt compile --project-dir pipelines --profiles-dir pipelines --target duckdb', 'introspect': 'True', 'target_path': 'None', 'log_format': 'default', 'send_anonymous_usage_stats': 'True'}
+[0m04:49:26.899778 [info ] [MainThread]: Error importing adapter: No module named 'dbt.adapters.duckdb'
+[0m04:49:26.900505 [error] [MainThread]: Encountered an error:
+Runtime Error
+  Credentials in profile "mvp", target "duckdb" invalid: Runtime Error
+    Could not find adapter type duckdb!
+[0m04:49:26.901380 [debug] [MainThread]: Resource report: {"command_name": "compile", "command_success": false, "command_wall_clock_time": 0.05697991, "process_in_blocks": "0", "process_kernel_time": 0.036588, "process_mem_max_rss": "91476", "process_out_blocks": "8", "process_user_time": 1.024487}
+[0m04:49:26.901781 [debug] [MainThread]: Command `dbt compile` failed at 04:49:26.901691 after 0.06 seconds
+[0m04:49:26.902109 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f252a4f1f90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f2529421c30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f2529423220>]}
+[0m04:49:26.902435 [debug] [MainThread]: Flushing usage events
+[0m04:49:27.877527 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m05:04:46.239764 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fcd124c1f30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fcd1159fbe0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fcd1159c730>]}
+
+
+============================== 05:04:46.242154 | 8077b5d8-bb20-48e0-a2d8-62a2bfbade22 ==============================
+[0m05:04:46.242154 [info ] [MainThread]: Running with dbt=1.9.4
+[0m05:04:46.242659 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': 'pipelines', 'version_check': 'True', 'debug': 'False', 'log_path': 'pipelines/logs', 'warn_error': 'None', 'fail_fast': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'empty': 'False', 'quiet': 'False', 'no_print': 'None', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'introspect': 'True', 'static_parser': 'True', 'invocation_command': 'dbt compile --project-dir pipelines --profiles-dir pipelines --target duckdb', 'target_path': 'None', 'log_format': 'default', 'send_anonymous_usage_stats': 'True'}
+[0m05:04:46.245714 [info ] [MainThread]: Error importing adapter: No module named 'dbt.adapters.duckdb'
+[0m05:04:46.246226 [error] [MainThread]: Encountered an error:
+Runtime Error
+  Credentials in profile "mvp", target "duckdb" invalid: Runtime Error
+    Could not find adapter type duckdb!
+[0m05:04:46.246930 [debug] [MainThread]: Resource report: {"command_name": "compile", "command_success": false, "command_wall_clock_time": 0.054284595, "process_in_blocks": "0", "process_kernel_time": 0.055981, "process_mem_max_rss": "91852", "process_out_blocks": "8", "process_user_time": 0.951683}
+[0m05:04:46.247346 [debug] [MainThread]: Command `dbt compile` failed at 05:04:46.247260 after 0.05 seconds
+[0m05:04:46.247641 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fcd124c1f30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fcd114226b0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fcd11423b80>]}
+[0m05:04:46.247956 [debug] [MainThread]: Flushing usage events
+[0m05:04:47.271299 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m05:06:10.068896 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fc11ba65ed0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fc11ab472e0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fc11ab44a60>]}
+
+
+============================== 05:06:10.071359 | a5635bb9-82eb-494d-9c15-29358dd8692b ==============================
+[0m05:06:10.071359 [info ] [MainThread]: Running with dbt=1.9.4
+[0m05:06:10.071870 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': 'pipelines', 'fail_fast': 'False', 'version_check': 'True', 'log_path': 'pipelines/logs', 'debug': 'False', 'warn_error': 'None', 'use_colors': 'True', 'use_experimental_parser': 'False', 'empty': 'False', 'quiet': 'False', 'no_print': 'None', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'introspect': 'True', 'invocation_command': 'dbt compile --project-dir pipelines --profiles-dir pipelines --target duckdb', 'log_format': 'default', 'target_path': 'None', 'static_parser': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m05:06:10.074845 [info ] [MainThread]: Error importing adapter: No module named 'dbt.adapters.duckdb'
+[0m05:06:10.075392 [error] [MainThread]: Encountered an error:
+Runtime Error
+  Credentials in profile "mvp", target "duckdb" invalid: Runtime Error
+    Could not find adapter type duckdb!
+[0m05:06:10.076102 [debug] [MainThread]: Resource report: {"command_name": "compile", "command_success": false, "command_wall_clock_time": 0.060574993, "process_in_blocks": "0", "process_kernel_time": 0.045822, "process_mem_max_rss": "91456", "process_out_blocks": "16", "process_user_time": 0.953114}
+[0m05:06:10.076523 [debug] [MainThread]: Command `dbt compile` failed at 05:06:10.076419 after 0.06 seconds
+[0m05:06:10.076855 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fc11ba65ed0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fc11a9ca6b0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fc11a9cbb20>]}
+[0m05:06:10.077168 [debug] [MainThread]: Flushing usage events
+[0m05:06:11.325638 [debug] [MainThread]: An error was encountered while trying to flush usage events

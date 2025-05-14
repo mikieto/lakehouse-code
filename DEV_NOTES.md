@@ -1,3 +1,50 @@
+# 2025-05-13 — Sprint S-1 Wrap-up
+
+## What we did today 🗓️
+
+1. **Remote-state & locking**  
+   • Created S3 bucket `skeleton-tfstate-<acct>` and DynamoDB table `skeleton-tf-lock`.  
+   • Added explicit `-backend-config` flags to `deploy.yml`; backend is remote & idempotent.
+
+2. **CI / CD hardening**  
+   • Added Infracost and production deploy workflows.  
+   • Enabled OIDC (`configure-aws-credentials@v4`); purged long-lived AWS keys.  
+   • Updated `.gitignore` (`.env`, `.terraform/`, `*.tfstate*`).
+
+3. **Secret-leak remediation**  
+   • Push-Protection blocked AWS keys → removed via `git filter-repo`, force-push.
+
+4. **Infra v1 shipped**  
+   • Terraform now creates Raw & Iceberg buckets, Glue DB, Athena WG, \$20 Budget.  
+   • `terraform apply` on prod workspace returns **No Changes**.
+
+5. **Data loop (Exit-2) closed**  
+   • Created Iceberg table `customers` via Athena:  
+
+     ```sql
+     CREATE TABLE skeleton_db.customers (
+       id INT,
+       name STRING
+     )
+     LOCATION 's3://…-iceberg/customers/'
+     TBLPROPERTIES ('table_type'='ICEBERG');
+     INSERT INTO skeleton_db.customers VALUES (1,'Alice');
+     ```  
+
+   • `SELECT * FROM skeleton_db.customers LIMIT 1;` succeeds.
+
+6. **Sprint S-1 status**  
+   • Exit #1, #2, #3, #5, #7 are green.  
+   • Tag `s1-complete` will be pushed after docs sync.
+
+## Next up ▶ Sprint S-2 — Medallion layer
+
+| Stage | Key tasks (all ≤80 chars) |
+|-------|---------------------------|
+| Bronze → Silver | Create `${prefix}_brz` & `${prefix}_slv`; CTAS cleanse |
+| Gold            | Build `customer_lifetime_value` aggregate            |
+| CI              | Add smoke: `COUNT(*) FROM slv_customers_curated`    |
+| Docs            | Update diagrams & README for Medallion architecture |
 
 # 2025-05-12 — Phase B hard-freeze preparations
 
