@@ -8,10 +8,8 @@ on:
     secrets:
       AWS_OIDC_ROLE_ARN:
         required: true
-        type: string
       ALERT_EMAIL:
         required: true
-        type: string
 
 jobs:
   tf_plan_apply:
