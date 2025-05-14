@@ -1,71 +1,23 @@
 name: ci_plan_apply
-
-# Manual trigger and automatic trigger on pushes to main
 on:
-  workflow_dispatch:
-  push:
-    branches: [main]
-
+  workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
 jobs:
-  apply:
+  tf_plan_apply:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    permissions:
-      id-token: write        # allow OIDC token retrieval
-      contents: read         # checkout needs this (defaults to read)
-
-    env:
-      AWS_REGION:  ${{ vars.AWS_REGION || 'us-east-1' }}
-      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
-      LOCK_TABLE:   ${{ vars.LOCK_TABLE }}
-      TF_VAR_budget_email: ${{ secrets.BUDGET_EMAIL }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # --- OIDC → AssumeRole ---
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_REGION || 'us-east-1' }}
-
+      - uses: actions/checkout@v4
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
-      # -------- CI workspace cleanup --------
-      - name: Destroy CI workspace (best-effort)
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        run: |
-          cd infra
-          terraform init -input=false \
-            -backend-config="bucket=${STATE_BUCKET}" \
-            -backend-config="key=ci/terraform.tfstate" \
-            -backend-config="region=${AWS_REGION}" \
-            -backend-config="dynamodb_table=${LOCK_TABLE}"
-          terraform workspace select ci || terraform workspace new ci
-          terraform destroy -auto-approve -input=false
-
-      # -------- Prod apply (main branch) ----
-      - name: Terraform apply prod
-        if: github.ref == 'refs/heads/main'
-        run: |
-          cd infra
-          terraform init -input=false \
-            -backend-config="bucket=${STATE_BUCKET}" \
-            -backend-config="key=ci/terraform.tfstate" \
-            -backend-config="region=${AWS_REGION}" \
-            -backend-config="dynamodb_table=${LOCK_TABLE}"
-          terraform workspace select prod || terraform workspace new prod
-          start=$(date +%s)
-          terraform apply -auto-approve -input=false -var="env=prod"
-          echo "{\"runtime_sec\":$(( $(date +%s)-start ))}" > /tmp/stopwatch.json
-
-      - name: Upload stopwatch artifact
-        uses: actions/upload-artifact@v4
-        if: github.ref == 'refs/heads/main'
         with:
-          name: stopwatch
-          path: /tmp/stopwatch.json
+          terraform_version: 1.7.0
+      - name: Terraform Init
+        run: terraform -chdir=infra init
+      - name: Terraform Plan
+        run: terraform -chdir=infra plan -input=false -out=tf.plan
+      - name: Terraform Apply
+        if: github.event_name == 'workflow_dispatch'
+        run: terraform -chdir=infra apply -input=false -auto-approve tf.plan

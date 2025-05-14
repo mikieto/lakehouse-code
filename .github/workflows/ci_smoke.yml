@@ -1,36 +1,16 @@
-# ====================================================================
-# File: .github/workflows/ci_smoke.yml
-# Purpose: Run quick_start smoke test on local Docker compose
-# ====================================================================
-
 name: ci_smoke
-
 on:
-  push:
-    branches: [ main ]
-    paths: [ 'scripts/quick_start.sh', '**/docker-compose*', 'Makefile' ]
   pull_request:
-    paths: [ 'scripts/quick_start.sh', '**/docker-compose*', 'Makefile' ]
-  workflow_dispatch:
+    branches: [ feat/spark-demo ]
 
 jobs:
-  smoke-ci:
-    # allow skipping via label “skip-smoke”
-    if: github.event_name != 'pull_request' ||
-        !contains(join(github.event.pull_request.labels.*.name, ','), 'skip-smoke')
+  smoke-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Run quick_start smoke
+      - name: Spin up Spark demo
         run: |
-          chmod +x ./scripts/quick_start.sh
-          ./scripts/quick_start.sh --smoke --local-mode
-
-      - name: Smoke summary
-        if: always()
-        run: |
-          echo "### Smoke Test Result"            >> $GITHUB_STEP_SUMMARY
-          echo "workflow = ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          docker compose -f spark_demo/docker_compose.yaml up -d
+          sleep 30
+      - name: Run demo queries
+        run: spark_demo/run_demo_queries.sh
