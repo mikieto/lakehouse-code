@@ -19,3 +19,5 @@ infracost-output*
 .env
 infra/.terraform/
 infra/dev.tfbackend
+
+tf.plan
