@@ -1,18 +1,39 @@
+# ----------------------------------------------------------------------
+# File: .github/workflows/ci_smoke.yml
+# Purpose: Local “vertical-slice” smoke test
+#   • Spins up the Spark + Iceberg demo stack via Docker Compose
+#   • Runs a simple query to verify the Iceberg table contains 1 row
+#   • Designed to finish in < 2 minutes so it can be part of the 5
+#     required status checks on every PR to main
+# ----------------------------------------------------------------------
+
 name: ci_smoke
+
 on:
-  pull_request:
+  pull_request:          # run on every PR targeting main
     branches: [main]
-  push:
+  push:                   # run again after the PR is merged
     branches: [main]
 
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
+
     steps:
+      # Checkout repository
       - uses: actions/checkout@v4
+
+      # ----------------------------------------------------------------
+      # 1) Start the Spark demo stack
+      # ----------------------------------------------------------------
       - name: Spin up Spark demo
         run: |
           docker compose -f spark_demo/docker_compose.yaml up -d
+          # Simple wait; in Day-1 we accept a fixed sleep
           sleep 30
+
+      # ----------------------------------------------------------------
+      # 2) Execute the verification query inside the Spark container
+      # ----------------------------------------------------------------
       - name: Run demo queries
         run: spark_demo/run_demo_queries.sh
