@@ -14,12 +14,22 @@ jobs:
       contents: read
 
     steps:
+
+      - name: Debug Environment
+        run: |
+          echo "GitHub Ref: ${{ github.ref }}"
+          echo "GitHub Repository: ${{ github.repository }}"
+          echo "GitHub Actor: ${{ github.actor }}"
+          echo "AWS Region: ${{ vars.AWS_REGION }}"
+          # ARNは機密情報なので全体を表示しない
+          echo "AWS Role ARN configured: ${{ secrets.AWS_OIDC_ROLE_ARN != '' }}"
+
       - uses: actions/checkout@v4
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
-          aws-region: 'us-east-1'
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
