@@ -9,6 +9,9 @@
 
 name: ci_smoke
 
+# 🚫 TEMPORARILY DISABLED – migrating to Golden Template
+if: false
+
 on:
   pull_request:          # run on every PR targeting main
     branches: [main]

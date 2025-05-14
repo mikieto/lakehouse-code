@@ -50,3 +50,11 @@ repos:
         name: snake_case_only
         entry: scripts/case_check.sh
         language: script
+
+  # --- drift check hook ---------------------------------------------------
+  - repo: local
+    hooks:
+      - id: ci-drift
+        name: ci_drift_sync
+        entry: scripts/check_ci_drift.sh
+        language: script

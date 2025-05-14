@@ -3,6 +3,18 @@
 Thank you for helping us build the 30-minute Lakehouse!  
 Please follow the rules below to keep the repo clean and reproducible.
 
+## 0. Single Source of Truth
+
+To keep the repo DRY, **each content type has exactly one canonical file**:
+
+| Content | Canonical file | What to do elsewhere |
+|---------|---------------|----------------------|
+| Overall roadmap & sprints | `project_plan.md` | Link, don’t copy |
+| CI-overview table | `docs/ci_walkthrough.md` | Link, don’t copy |
+| Navigation hub | `README.md` | — |
+| Ten-Principles list | `docs/ten_principles_cheat_sheet.md` | Include with Markdown `!INCLUDE` or link |
+| CI development flow | CONTRIBUTING.md §5 | Link, don't copy |
+
 ## 1. Branch & PR workflow
 
 | Step | Rule | Example |
@@ -25,7 +37,7 @@ Please follow the rules below to keep the repo clean and reproducible.
 | Git branches     | kebab-case | `<type>/<topic>` | `feat/ci-guard`, `fix/ingest-bug` |
 | External resource names (S3 bucket, IAM role, tags) | kebab-case or vendor default | value-only | `lh-demo-landing-zone`, `emr-serverless-job` |
 
-> *Guideline* — kebab-case is **allowed only** for human-facing *values* (S3 bucket name, AWS tag, etc.) and for Git branch names. Everything that appears in code (files, modules, identifiers) must be snake_case.
+> _Guideline_ — kebab-case is **allowed only** for human-facing _values_ (S3 bucket name, AWS tag, etc.) and for Git branch names. Everything that appears in code (files, modules, identifiers) must be snake_case.
 
 ## 3. Pre-commit checklist
 
@@ -67,3 +79,24 @@ Append to `.pre-commit-config.yaml`:
       entry: scripts/case_check.sh
       language: script
 ```
+
+## 5. CI development flow
+
+`ci/` is the **single source of truth** for all reusable GitHub Actions
+(composite actions, reusable workflows, shared config).  
+The files under `.github/workflows/` are **generated stubs** that GitHub actually
+runs.
+
+1. Edit or add code under `ci/` only.
+2. Regenerate stubs:
+
+    ```bash
+    make sync-ci        # copies ci/workflows/* → .github/workflows/
+    make check-ci-drift # fails if the two locations diverge
+    ```
+
+3. Commit **both** the updated `ci/…` files _and_ the regenerated stubs in the
+   same pull request.
+
+> **Tip:** A pre-commit hook blocks the commit if drift exists between the two
+> folders. See `scripts/check_ci_drift.sh` for implementation details.
