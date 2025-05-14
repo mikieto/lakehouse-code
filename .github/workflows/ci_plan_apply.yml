@@ -5,6 +5,13 @@ on:
       env:            # dev / prod / etc.
         required: true
         type: string
+    secrets:
+      AWS_OIDC_ROLE_ARN:
+        required: true
+        type: string
+      ALERT_EMAIL:
+        required: true
+        type: string
 
 jobs:
   tf_plan_apply:
@@ -16,6 +23,7 @@ jobs:
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       ROLE_ARN: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+      ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
 
     steps:
 
