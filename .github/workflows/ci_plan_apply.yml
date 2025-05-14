@@ -1,4 +1,4 @@
-name: deploy
+name: ci_plan_apply
 
 # Manual trigger and automatic trigger on pushes to main
 on:

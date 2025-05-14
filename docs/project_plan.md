@@ -2,7 +2,7 @@
 # Project Plan — *lakehouse-code*
 
 > **Mission** – Deliver a *Skeleton Lakehouse* that any learner can spin up, verify, and tear down in **≤ 30 minutes**, with **CI green** and **seven objective exit checks**.  
-> *This file is the **single source of truth** for the exit-criteria table; when you update it, copy & paste the fenced block into `README.md` and `lakehouse-book/docs/00-project-plan.md`.*
+> *This file is the **single source of truth** for the exit-criteria table; when you update it, copy & paste the fenced block into `README.md` and `lakehouse-book/docs/00-project_plan.md`.*
 
 ---
 
@@ -20,9 +20,9 @@ Learners should achieve a *first win in thirty minutes* on a clean AWS account, 
 <!-- BEGIN EXIT_CRITERIA -->
 | # | Objective Check | Pass Condition | Verifier |
 |---|-----------------|----------------|----------|
-| 1 | **30-min deploy** | `make up` completes in ≤ 30 min ✅ | CI stopwatch artifact |
+| 1 | **30-min deploy** | `make up` completes in ≤ 30 min ✅ | `ci_plan_apply.yml` stopwatch |
 | 2 | **Data loop** | CSV → Iceberg → Athena returns a row ✅ | `run_demo_queries.sh` |
-| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `guard.yml` |
+| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `ci_guard.yml` |
 | 4 | **Lineage graph** | Marquez UI shows ≥ 1 job/node | Screenshot |
 | 5 | **100 % IaC** | `terraform plan` shows 0 unmanaged | Guard output |
 | 6 | **Security baseline** | Lake Formation column mask hides **ssn** | SQL test |
@@ -49,7 +49,7 @@ Learners should achieve a *first win in thirty minutes* on a clean AWS account, 
 | Sprint | Focus | Major Tasks | Owner |
 |--------|-------|-------------|-------|
 | **S-0 Bootstrap** | Local smoke + DevContainer | Dockerised Kafka + MinIO, `make smoke` | Data Eng |
-| **S-1 Skeleton Deploy** | AWS serverless stack | Terraform modules, `quick-start.sh` | Platform SRE |
+| **S-1 Skeleton Deploy** | AWS serverless stack | Terraform modules, `quick_start.sh` | Platform SRE |
 | **S-2 Quality & Lineage** | GE tests + Marquez | Seed expectations, OpenLineage | Data Eng |
 | **S-3 Fin/Sec Guard-rails** | Budgets + Lake Formation | Cost alarm, column mask | SecOps |
 | **S-4 CI Hardening** | Repeatability | Guard matrix, optional self-hosted runner | DevOps |
