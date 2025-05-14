@@ -19,5 +19,3 @@ infracost-output*
 .env
 infra/.terraform/
 infra/dev.tfbackend
-
-DEV_NOTES.md
