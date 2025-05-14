@@ -2,7 +2,7 @@
 set -eu
 
 COMPOSE_FILE="spark_demo/docker_compose.yaml"
-SERVICE="spark"                    # ← docker compose ps で確認した名前
+SERVICE="spark-master"
 SPARK_SQL="/opt/spark/bin/spark-sql"
 QUERY="SELECT count(*) FROM demo.default.customer;"
 
@@ -15,9 +15,9 @@ for i in {1..24}; do
   sleep 5
 done
 
-# Fail fast if Spark never became ready
+# Fail fast if still not ready
 docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" "$SPARK_SQL" -e 'SHOW DATABASES;' >/dev/null
 
-# Verify the demo table has 1 row
 docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" "$SPARK_SQL" -e "$QUERY" | grep -q 1
+
 
