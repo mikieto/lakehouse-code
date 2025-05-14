@@ -1,15 +1,11 @@
 name: ci_plan_apply
 on:
   workflow_call:
-    inputs:
-      env:            # dev / prod / etc.
-        required: true
-        type: string
     secrets:
       AWS_OIDC_ROLE_ARN:
         required: true
       ALERT_EMAIL:
-        required: true 
+        required: true
 
 jobs:
   tf_plan_apply:
@@ -19,7 +15,6 @@ jobs:
       contents: read
 
     steps:
-
       - uses: actions/checkout@v4
 
       - uses: aws-actions/configure-aws-credentials@v4
@@ -27,13 +22,12 @@ jobs:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.7.0
 
       - name: Terraform Init
-        run: terraform -chdir=infra init 
+        run: terraform -chdir=infra init
 
       - name: Terraform Plan
         run: |
@@ -44,3 +38,4 @@ jobs:
       - name: Terraform Apply
         if: github.event_name == 'workflow_dispatch'
         run: terraform -chdir=infra apply -input=false -auto-approve tf.plan
+

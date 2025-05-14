@@ -1,0 +1,10 @@
+name: plan_apply_prod
+on:
+  workflow_dispatch: {}
+jobs:
+  call_plan_apply:
+    uses: ./.github/workflows/ci_plan_apply.yml
+    secrets:
+      AWS_OIDC_ROLE_ARN: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+      ALERT_EMAIL:      ${{ secrets.ALERT_EMAIL }}
+
