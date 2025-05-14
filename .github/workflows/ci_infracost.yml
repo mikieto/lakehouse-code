@@ -1,30 +1,46 @@
-# ci_infracost.yml
-
+# .github/workflows/ci_infracost.yml
 name: ci_infracost
 
+# ────────────────────────────────────────────────
+# Trigger on:
+#   • any *.tf change (IaC update)
+#   • modifications to the main TF workflow file
+# Runs on both pull-request (cost comment) and main push (baseline generation is optional).
+# ────────────────────────────────────────────────
 on:
   pull_request:
-    paths: [ "**/*.tf", ".github/workflows/ci-deploy.yml" ]
+    branches: [main]
+    paths:
+      - "**/*.tf"
+      - ".github/workflows/ci_plan_apply.yml"
   push:
-    branches: [ main ]
-    paths: [ "**/*.tf", ".github/workflows/ci-deploy.yml" ]
+    branches: [main]
+    paths:
+      - "**/*.tf"
+      - ".github/workflows/ci_plan_apply.yml"
 
 jobs:
-  infracost-diff:
+  infracost:
     runs-on: ubuntu-latest
+
     steps:
+      # Checkout repository
       - uses: actions/checkout@v4
 
+      # Install Infracost CLI with API key from repo secrets
       - uses: infracost/actions/setup@v2
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-      - name: Breakdown
+      # Generate cost breakdown for the infra directory
+      - name: Generate cost breakdown
         run: |
-          infracost breakdown --path=infra \
+          infracost breakdown \
+            --path=infra \
             --format=json \
             --out-file=/tmp/infracost.json
 
+      # Post (or update) cost comment on PRs
       - name: Post cost comment
         if: github.event_name == 'pull_request'
         run: |

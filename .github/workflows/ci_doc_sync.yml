@@ -1,7 +1,9 @@
 name: ci_doc_sync
 on:
+  pull_request:
+    branches: [main]
   push:
-    paths: [ "docs/project_plan.md" ]
+    paths: ["docs/project_plan.md"]
 jobs:
   sync:
     runs-on: ubuntu-latest
