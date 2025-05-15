@@ -1,105 +1,163 @@
-<!-- markdownlint-disable MD013 -->
-# Project Plan — *lakehouse-code*
 
-> **Mission** – Deliver a *Skeleton Lakehouse* that any learner can spin up, verify, and tear down in **≤ 30 minutes**, with **CI green** and **seven objective exit checks**.  
-> *This file is the **single source of truth** for the exit-criteria table; when you update it, copy & paste the fenced block into `README.md` and `lakehouse-book/docs/00-project_plan.md`.*
+# Project Plan — *Starter Lakehouse*  2025-05-15
+
+> **Mission** – Provide a *Starter Lakehouse* any learner can  
+> spin-up, query and tear down in **≤ 30 minutes** for **≤ USD 20 per month**,  
+> while practising a production-grade, cloud-native Dev → CI → Prod flow.  
 
 ---
 
 ## 1  Purpose (WHY)
 
-Enable instant, cost-safe experimentation.  
-Learners should achieve a *first win in thirty minutes* on a clean AWS account, then dig deeper layer-by-layer.
+First win in 30 minutes → safe deep-dives into ETL, CDC, FinOps, DR, SRE …
+
+### 1.1 Guiding Principles — Golden Template
+
+We apply the **Golden Template** strategy:
+
+| Principle | How we realise it |
+|-----------|-------------------|
+| Official-first | `actions/starter-workflows` & `terraform-aws-modules/*` are **forked** into our GitHub org. |
+| Thin-custom | Cost guard (Infracost & AWS Budgets) and security guard (tfsec, Trivy, cosign) are added as reusable workflows in **`ci/workflows/`**. |
+| Single Source of Truth | `make sync-ci` copies reusable workflows into `.github/workflows/`. Docs blocks are synced via `scripts/sync_exit_block.py`. |
+| Self-service | `make new-module name=...` runs Cookiecutter to scaffold Terraform modules with pre-commit hooks. |
+| Evergreen | Monthly `gh workflow run dependabot` keeps forks in sync with upstream. |
+
+*These principles underpin every sprint and CI check.*
+
+> **Offline Distribution** – Release pipeline runs `make bundle`, vendoring all forked Terraform modules into `infra/_vendor/` and rewriting `source` paths. This guarantees the 30-minute hands-on works even in air-gapped environments.
 
 ---
 
-## 2  Exit Criteria – **Skeleton-Done**
+## 2  Scope / Out-of-Scope
 
-> **Always edit the table *here*.** Copy the entire `BEGIN/END` block to other docs when it changes.
-
-<!-- BEGIN EXIT_CRITERIA -->
-| # | Objective Check | Pass Condition | Verifier |
-|---|-----------------|----------------|----------|
-| 1 | **30-min deploy** | `make up` completes in ≤ 30 min ✅ | `ci_plan_apply.yml` stopwatch |
-| 2 | **Data loop** | CSV → Iceberg → Athena returns a row ✅ | `run_demo_queries.sh` |
-| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `ci_guard.yml` |
-| 4 | **Lineage graph** | Marquez UI shows ≥ 1 job/node | Screenshot |
-| 5 | **100 % IaC** | `terraform plan` shows 0 unmanaged | Guard output |
-| 6 | **Security baseline** | Lake Formation column mask hides **ssn** | SQL test |
-| 7 | **Fin/Obs guards** | Budgets alarm + CloudWatch dashboard with ≥ 3 metrics | Terraform outputs |
-<!-- END EXIT_CRITERIA -->
-
-*The first commit that passes all seven checks is tagged **`skeleton-done`** and freezes the base for further work.*
+| Included | Excluded |
+|----------|----------|
+| Serverless storage, ETL/ELT, lineage, security & cost guard-rails | Non-AWS clouds, on-prem-only connectors |
+| IaC & CI/CD best practice, FinOps basics | Ultra-PB tuning, vendor-specific BI tweaks |
+| Cross-Region DR (S3 CRR + LakeFS) | Multi-cloud active-active DR |
 
 ---
 
-## 3  Key Performance Indicators
+## 3  Exit Criteria — **`starter-done`**
 
-| KPI | Target | Validation |
-|-----|--------|------------|
-| Quick-Start runtime | ≤ 30 min | CI stopwatch |
-| Monthly AWS cost | ≤ US $20 | Infracost + Budgets alert test |
-| CI success streak | ≥ 95 % | `e2e.yml` history |
-| Data-contract pass rate | 100 % tables | Great Expectations |
+Exit Criteria → ../README.md
+
+*Any commit passing all seven checks is tagged **`starter-done`** and the base is frozen.*
 
 ---
 
-## 4  Execution Roadmap
+## 4  Roadmap & Sprints
 
-| Sprint | Focus | Major Tasks | Owner |
-|--------|-------|-------------|-------|
-| **S-0 Bootstrap** | Local smoke + DevContainer | Dockerised Kafka + MinIO, `make smoke` | Data Eng |
-| **S-1 Skeleton Deploy** | AWS serverless stack | Terraform modules, `quick_start.sh` | Platform SRE |
-| **S-2 Quality & Lineage** | GE tests + Marquez | Seed expectations, OpenLineage | Data Eng |
-| **S-3 Fin/Sec Guard-rails** | Budgets + Lake Formation | Cost alarm, column mask | SecOps |
-| **S-4 CI Hardening** | Repeatability | Guard matrix, optional self-hosted runner | DevOps |
-| **S-5 Freeze** | Tag & docs sync | Stopwatch proof, push `skeleton-done` | All |
+Here’s the re-balanced Roadmap with the two fixes applied:
 
----
+| Sprint                 | Focus                                       | Exit # (target to achieve) | Key CI Jobs                                      | Owner            |
+| ---------------------- | ------------------------------------------- | -------------------------- | ------------------------------------------------ | ---------------- |
+| **S-0** Bootstrap      | DevContainer setup & local smoke tests      | – (preparatory)            | `ci_smoke_local`                                 | Dev Experience   |
+| **S-1** Starter Core   | Fully serverless stack deployed in ≤ 30 min | **#1 #2 #5**               | `ci_plan_apply`, `ci_smoke_aws`, `ci_guard`      | Platform SRE     |
+| **S-2** Quality Gate   | dbt + Great Expectations hard-fail gate     | **#3 #6**                  | `ci_dbt_test`, `ci_expectations`, `ci_guard`     | Data Engineering |
+| **S-3** CDC & Events   | MSK Serverless + Debezium streaming         | **#4**                     | `ci_cdc_latency`, `ci_lineage_check`             | Data Engineering |
+| **S-4** Observability  | EMF → Grafana dashboards & cost alerts      | **#7**                     | `ci_observability`, `ci_finops_alert`            | SecOps           |
+| **S-5** Dev & SRE      | Incident drill & automated post-mortem      | *maintain #3*              | `ci_incident_review`, `ci_guard`                 | DevOps           |
+| **S-6** DR & Backup    | Cross-Region Replication + LakeFS switch    | *maintain #5 (IaC), #7*    | `ci_backup_check`, `ci_observability`, `ci_guard`| Platform SRE     |
+| **S-7** Dev Portal     | Backstage on EKS / Fargate                  | *maintain #3*              | `ci_portal_build`, `ci_guard`                    | Dev Experience   |
+| **S-8** Release Freeze | Final release, docs sync, and hand-over     | **all Exit #1-#7**         | manual checks + CI                               | Whole Team       |
 
-## 5  Timeline (Weeks)
-
-| Week | Deliverables | CI Gate | Status |
-|------|--------------|---------|--------|
-| **W0** | DevContainer + local smoke green | `smoke.yml` | ✅ |
-| **W1** | Serverless deploy ≤ 30 min | `deploy.yml` | ✅ |
-| **W2** | Lineage & GE tests pass | `e2e.yml` ||
-| **W3** | Budgets, mask, IaC 100 % | `guard.yml` ||
-| **W4** | **`skeleton-done` tag** + artefacts | Manual stopwatch + CI ||
+*“maintain” indicates the sprint must keep the already-met Exit Criteria green; the listed CI jobs enforce that.*
 
 ---
 
-## 6  Ownership
+## 5  Repository Structure (Flat 3-Box + Portal)
 
-| Area | Primary | Reviewers |
-|------|---------|-----------|
-| Terraform modules | @platform-sre | @secops |
-| Pipelines & GE | @data-eng | @platform-sre |
-| CI / DevEx | @devops | @editor |
+```text
+lakehouse-code/
+├── ci/                    # GitHub Actions workflows
+├── infra/                 # Terraform modules & *.tfvars
+├── pipelines/             # run_demo_queries.sh, dbt, CDC, incident drill …
+│   ├── tests/             # lakeformation_mask.sql
+│   └── local_dev/         # MinIO + DuckDB sandbox
+├── portal/                # Developer portal app (Backstage)
+├── docs/                  # ci_walkthrough.md, budget_alarm.md …
+├── .devcontainer/         # Single-image build → GHCR
+├── .github/               # ISSUE_TEMPLATE, CODEOWNERS, SECURITY.md
+├── .gitmessage            # Conventional-Commit template (≥2 lines)
+├── CHANGELOG.md           # Auto-generated by release-please
+└── project_plan.md        # ← this file
+```
 
----
-
-## 7  Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| Provisioning > 30 min | Exit #1 fails | Switch fully to serverless; downsize MSK |
-| AWS cost spike | Learner churn | Nightly `make nuke`; Budgets “stop-spend” |
-| Lineage collector bug | Exit #4 fails | Pin OpenLineage version; health check |
-
----
-
-## 8  Done Checklist
-
-- [ ] All seven exit checks pass (`skeleton-done` tag)  
-- [ ] README Quick-Start verified from fresh laptop  
-- [ ] Cost & CO₂ badges green  
-- [ ] CHANGELOG updated  
+*Keep the top level flat; new assets live inside one of the three boxes.*
 
 ---
 
-### ✍️ Change Log
+## 6  Environments
 
-| Date | Author | Summary |
-|------|--------|---------|
+| Layer               | Purpose         | Key Points                                |
+| ------------------- | --------------- | ----------------------------------------- |
+| Local               | Rapid debug     | Dev Container ⇄ GHCR image                |
+| GitHub CI           | Quality gate    | Five mandatory jobs + consistency checker |
+| AWS dev             | Learner sandbox | workspace =`dev`, StopSpend ≤ USD 20      |
+| AWS prod (*opt-in*) | DR drill        | Manual approval, workspace =`prod`        |
+
+---
+
+## 7  Development Workflow (learner)
+
+1. Run locally → green smoke
+2. Commit – pre-commit hooks pass
+3. PR – CI 5 + α jobs green
+4. Auto-deploy **dev**  via `ci_plan_apply` + `ci_smoke_aws`
+5. *(Optional)* manual approval → prod deploy
+   → Full steps in **docs/ci_walkthrough.md**
+
+---
+
+## 8  Git Commit Policy (≥ 2 lines)
+
+- `.gitmessage` template is checked in.
+- Dev Container sets it globally on first startup.
+- `gitlint` (pre-commit) blocks single-line commits.
+
+---
+
+## 9  CI Pipeline Overview
+
+See `docs/ci_walkthrough.md`.
+
+---
+
+## 10  Ownership
+
+| Area          | Primary       | Review        |
+| ------------- | ------------- | ------------- |
+| Terraform     | @platform-sre | @secops       |
+| Pipelines/dbt | @data-eng     | @platform-sre |
+| CI & DevEx    | @devops       | @editor       |
+| Portal        | @devops       | @platform-sre |
+
+---
+
+## 11  Risks & Mitigations
+
+| Risk              | Impact              | Mitigation                     |
+| ----------------- | ------------------- | ------------------------------ |
+| Deploy > 30 min   | Exit #1 fails       | optimise TF, fully serverless  |
+| Cost spike        | Learner churn       | StopSpend, nightly `make nuke` |
+| Docs ↔ code drift | Wrong learning path | consistency checker hard-fail  |
+
+---
+
+## 12  Change Log
+
+Managed by **release-please** — manual edits forbidden.
+
+| Date       | Author  | Summary                                                            |
+| ---------- | ------- | ------------------------------------------------------------------ |
+| 2025-05-15 | @editor | repo flatten & P0 completed                                        |
+| 2025-05-15 | @editor | Flattened repo; portal folder; CI/Docs links; two-phase workflow   |
 | 2025-05-11 | @editor | Mark plan.md as canonical for Exit Criteria; added BEGIN/END block |
+
+---
+
+## Appendix A — Outline & CI Links
+
+- CI ↔ Chapter ↔ Principles table → **docs/ci_walkthrough.md**

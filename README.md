@@ -1,122 +1,109 @@
-# 🚀 **30-Minute Self-Service Lakehouse**
+# 🚀 30-Minute Self-Service Lakehouse
 
-| Guard | Plan-Apply | License | Cost ≤ US $20 / month |
-|-------|------------|---------|-----------------------|
-| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/guard.yml?label=guard\&logo=github) | ![plan-apply](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_plan_apply.yml?label=plan-apply&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
+> **Single-source note:** canonical locations are listed in CONTRIBUTING.md §0.
+> Spin up → learn → tear down a fully-managed, **serverless Lakehouse in under 30 minutes** for ≈ US $20 / month.
 
-> **Spin up — learn — tear down** a fully-managed, serverless Lakehouse in **under 30 minutes**.
-> All cloud resources can be kept below **US \$20/month** with the default settings.
-> *A companion book is in the works; this repo already contains the complete, runnable code.*
-
----
-
-## 📦  What’s Inside
-
-| Layer             | Tech Stack                                   | Highlights                                  |
-| ----------------- | -------------------------------------------- | ------------------------------------------- |
-| **Storage**       | Amazon S3 (Bronze / Silver / Gold)           | Hive-style partitions, lifecycle policies   |
-| **Table Format**  | Apache Iceberg                               | ACID, time-travel, schema evolution         |
-| **Orchestration** | Glue Serverless, dbt, Airflow (on Docker)    | Declarative pipelines, DAG-based scheduling |
-| **Streaming**     | MSK + Kafka Connect (Debezium)               | Change-Data-Capture to S3                   |
-| **ML & MLOps**    | SageMaker Serverless, MLflow                 | End-to-end model lifecycle                  |
-| **Observability** | OpenLineage + Marquez, CloudWatch Dashboards | Lineage graph & near-real-time metrics      |
-| **Fin/Ops & Sec** | AWS Budgets, Infracost, Lake Formation       | Cost guard-rails, column-level masking      |
+| Guard | Plan-Apply | License | Budget ≤ US $20 |
+|-------|-----------|---------|-----------------|
+| ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_guard.yml?label=guard&logo=github) | ![plan](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_plan_apply.yml?label=plan-apply&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
 
 ---
 
-## 🛠  Prerequisites
+## 🧭 Reading Guide <a id="reading-guide"></a>
 
-| Tool                 | Minimum Version | Purpose                |
-| -------------------- | --------------- | ---------------------- |
-| **AWS CLI**          | v2.15           | Deploy & operate       |
-| **Terraform**        | v1.6            | Infrastructure as Code |
-| **Docker + Compose** | 24.x            | Local runners & Kafka  |
-| **Git**              | 2.40            | Clone & tag checkout   |
-| **bash / zsh**       | —               | Runs helper scripts    |
-
-> You’ll need an AWS account with permission to create S3, Glue, IAM, MSK, and SageMaker resources.
-> **Tip:** Use a *fresh* sub-account or an *AWS Control Tower sandbox* to keep billing and policy boundaries clean.
+| Why / What / How | Resource / TL;DR |
+|------------------|------------------|
+| **Why** – Two macro-shifts: **1️⃣ Physical → Logical** (cloud-native tags, IAM, policies replace rack-level fences) **& 2️⃣ Manual → Code-as-Default** (configs, tests, policies live in Git) | *Intro chapter of the book* |
+| **What** – Five modern-data pillars: **Elastic · Serverless · Governed · Cost-Aware · AI-Ready** — the yardsticks that drive every design and CI gate in this repo | *Chapter 2 of the book* |
+| **How** – Ten-Principles cheat-sheet | [`docs/ten_principles_cheat_sheet.md`](docs/ten_principles_cheat_sheet.md) |
+| **What** – Tool-Triad: **Terraform Modules** (infra), **GitHub Reusable Workflows** (automation), **Apache Iceberg** (open-table format) — the glue that lets you reuse the patterns in any cloud | *Hands-on chapters 4-7* |
+| **Loop** – Org-adoption canvas: map PoC → Scale-up → Org-wide adoption on one page to surface trade-offs early | *Appendix C (forthcoming)* |
 
 ---
 
-## ⚡️  Quick Start ( ≈ 30 min )
+## 📚 Chapters at a Glance
+
+| # | Chapter (anchor) | 1-line value + hands-on goal |
+|---|------------------|-----------------------------|
+| 1 <a id="ch-1-evolution"></a> | **Evolution** | Storage became the new gravity—why it matters. |
+| 2 <a id="ch-2-paradigms"></a> | **Paradigms** | Ops-as-Code toggle: demo ⇄ prod in minutes. |
+| 3 <a id="ch-3-strategy"></a> | **Strategy & Value** | FinOps-first: live cost diff with Infracost. |
+| 4 <a id="ch-4-landing-zone"></a> | **Landing Zone** | Guard-railed AWS landing zone in 15 min. |
+| 5 <a id="ch-5-pipeline"></a> | **Pipeline** | Iceberg Bronze → Silver, schema-safe, 20 min. |
+| 6 <a id="ch-6-governance"></a> | **Governance** | Catalog + Mask + GE gate + Lineage in 20 min. |
+| 7 <a id="ch-7-mlops-adv"></a> | **MLOps (Adv.)** | Retrain & redeploy in < 15 min when drift hits. |
+| 8 <a id="ch-8-devops-adv"></a> | **DevOps (Adv.)** | GitHub-native workflow + ChatOps in 15 min. |
+| 9 <a id="ch-9-cdc-adv"></a> | **CDC (Adv.)** | Ingest each change in 500 ms; live lake mirror. |
+| 10 <a id="ch-10-optimize"></a> | **Optimize** | Iceberg OPTIMIZE + Cost-Guard loop in 20 min. |
+
+### Appendices
+
+| ID | Title | Use |
+|----|-------|-----|
+| A <a id="appendix-a"></a> | 20-Check Production Checklist | One-page go-live list |
+| B <a id="appendix-b"></a> | Copy-&-Paste Policy Pack | Ready-to-use IaC / policy snippets |
+
+---
+
+## 📂 Repo layout
+
+➡️  See the full table in [project _plan.md §5 Repository Structure](project_plan.md#5-repository-structure).
+
+---
+
+## ⚡️ Quick Start (~ 30 min)
+
+1. **Clone & env‑file** – user clones repo and copies `.env.sample → .env` with AWS profile + region.
+2. **Run `scripts/quick_start.sh`** – the wrapper script orchestrates everything below:
+
+   * *Terraform* `init → apply` to provision minimal lakehouse stack (S3 / Glue / Iceberg catalog, etc.).
+   * *Infracost* check to surface projected monthly spend.
+   * *Smoke workflow* triggers (`ci/ci_smoke.yml`) to prove infra is reachable.
+   * *Budget Alarm* example deploys a Cost‑Explorer alert at ¥3 000 / mo.
+   * Prints **Next Steps** (dbt seed, notebook URL, teardown command).
+3. **Optional `make destroy`** – one‑liner to clean all resources.
+
+*Outcome: working, budget‑guarded lakehouse in ≈30 min.*
 
 ```bash
-# 1. Clone the repo
 git clone https://github.com/mikieto/lakehouse-code.git
 cd lakehouse-code
 
-# 2. (Optional) work on the latest stable tag
-# git checkout v0.9.0
+# Deploy everything (≈ 20-25 min)
+./scripts/quick_start.sh --deploy
 
-# 3. Deploy — this creates all serverless resources in your default AWS region
-./scripts/quick_start.sh --deploy                # ≈ 20-25 min
+# Smoke-test Iceberg round-trip (< 1 min)
+bash pipelines/run_demo_queries.sh
+````
 
-# 4. Smoke-test the full Bronze→Gold path
-./scripts/run_demo_queries.sh            # < 1 min
-
-# 5. Explore
-open "https://us-east-1.console.aws.amazon.com/athena/home"     # query tables
-open "http://localhost:3000"                                    # Marquez UI
-```
-
-### Tear Down  (≈ 3 min)
-
-```bash
-./scripts/quick_start.sh --destroy               # Deletes every resource created by this repo
-```
-
-*The guard CI job runs the same workflow non-interactively; see `.github/workflows/guard.yml`.*
+**Destroy**: `./scripts/quick_start.sh --destroy` (≈ 3 min)
 
 ---
 
-## ✅  What Counts as “Success”?
+## ✅ Exit Criteria
 
-<!-- BEGIN EXIT_CRITERIA -->
-| # | Objective Check | Pass Condition | Verifier |
-|---|-----------------|----------------|----------|
-| 1 | **30-min deploy** | `make up` completes in ≤ 30 min ✅ | `ci_plan_apply.yml` stopwatch |
-| 2 | **Data loop** | CSV → Iceberg → Athena returns a row ✅ | `run_demo_queries.sh` |
-| 3 | **CI green** | Guard workflow succeeds **3×** consecutively | `ci_guard.yml` |
-| 4 | **Lineage graph** | Marquez UI shows ≥ 1 job/node | Screenshot |
-| 5 | **100 % IaC** | `terraform plan` shows 0 unmanaged | Guard output |
-| 6 | **Security baseline** | Lake Formation column mask hides **ssn** | SQL test |
-| 7 | **Fin/Obs guards** | Budgets alarm + CloudWatch dashboard with ≥ 3 metrics | Terraform outputs |
-<!-- END EXIT_CRITERIA -->
-
-If all seven pass, you’ve reproduced the full 30-minute Lakehouse.
+| # | Objective         | Pass condition                      | Verifier                                       |
+| - | ----------------- | ----------------------------------- | ---------------------------------------------- |
+| 1 | 30-min deploy     | `make up` ≤ 30 min                  | `ci_plan_apply` stopwatch                      |
+| 2 | Data loop         | Iceberg → Athena returns ≥ 1 row    | `pipelines/run_demo_queries.sh`                |
+| 3 | CI green          | `ci_guard` succeeds 3 ×             | `ci_guard.yml`                                 |
+| 4 | Lineage           | Marquez UI shows ≥ 1 job            | `ci_lineage_check`                             |
+| 5 | 100 % IaC         | `terraform plan` shows 0 unmanaged  | guard output                                   |
+| 6 | Security baseline | Lake Formation mask hides **ssn**   | `pipelines/tests/lakeformation_mask.sql`       |
+| 7 | Fin/Obs guard     | Budgets alarm + CW dash ≥ 3 metrics | [`docs/budget_alarm.md`](docs/budget_alarm.md) |
 
 ---
 
-## 🧰  Useful Make Targets
+## 🔗 FinOps Alarm Guide
 
-| Command      | Action                                        |
-| ------------ | --------------------------------------------- |
-| `make plan`  | Dry-run Terraform                             |
-| `make up`    | Same as `quick_start.sh --deploy`             |
-| `make nuke`  | Same as `quick_start.sh --destroy`            |
-| `make smoke` | Local Docker-only pipeline test (no AWS cost) |
+See **[`docs/budget_alarm.md`](docs/budget_alarm.md)** for the 5-step procedure to verify cost alerts.
+← Back to [Reading Guide](#reading-guide)
 
 ---
 
-## 🤝  Contributing
+## 🤝 Contributing & License
 
-1. Fork the repository.
-2. Create a feature branch.
-3. Run `make test` (lint + unit) **and** `make smoke`.
-4. Open a PR — the guard workflow must be green.
+* Fork → feature branch → `make smoke` → PR (**guard must be green**).
+* Licensed under **MIT**. Monthly cost badge assumes *us-east-1* and default data size (< 1 GB).
 
-See **`CONTRIBUTING.md`** for tag conventions and review check-lists.
-
----
-
-## 🏷  License & Cost Footnote
-
-Distributed under the **MIT License**.
-The *≤ US \$20/mo* badge assumes **us-east-1**, default dataset size (< 1 GB), and no SageMaker GPU usage. Heavy workloads can exceed this — **set Budgets alerts** before experimenting.
-
----
-
-### Happy Building! 🎉
-
-*Questions or feedback?* Open an issue or reach out on Twitter [@mikieto](https://twitter.com/mikieto).
+Happy building 🎉 — Questions? Open an issue or DM [@mikieto](https://twitter.com/mikieto).
