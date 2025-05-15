@@ -11,6 +11,14 @@ Please follow the rules below to keep the repo clean and reproducible.
 | Commit      | ≤ 50 chars, imperative | `chore: unify naming to snake_case` |
 | PR title    | `[type] short summary`  | `[feat] add EMR Serverless module` |
 
+### Docs-only quick-fixes
+
+Small documentation-only changes  
+(typo fixes, broken links, wording tweaks **that touch no code or CI**)  
+**may be pushed directly to `main` without a PR.**  
+If a doc change is substantial or can affect build/CI/infrastructure,  
+please follow the normal PR workflow so others can review.
+
 ## 2. Naming convention
 
 | Category | Allowed case | Prefix / Scope | Example |
