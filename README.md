@@ -47,7 +47,7 @@
 
 ## 📂 Repo layout
 
-➡️  See the full table in [project _plan.md §5 Repository Structure](project_plan.md#5-repository-structure).
+➡️  See the full table in [project _plan.md §5 Repository Structure](docs/project_plan.md#5-repository-structure).
 
 ---
 
