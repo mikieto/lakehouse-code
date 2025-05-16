@@ -16,6 +16,10 @@ jobs:
       lock_table:  ${{ vars.LOCK_TABLE }}
       workspace:   dev
       extra_var:   env=dev
+      prefix:      starter-lh
+      env_name:    dev
+    secrets:
+      budget_email: ${{ secrets.BUDGET_EMAIL }}
 
   apply-prod:
     if: github.ref == 'refs/heads/main'
@@ -27,3 +31,8 @@ jobs:
       lock_table:  ${{ vars.LOCK_TABLE }}
       workspace:   prod
       extra_var:   env=prod
+      prefix:      starter-lh
+      env_name:    prod
+    secrets:
+      budget_email: ${{ secrets.BUDGET_EMAIL }}
+      
