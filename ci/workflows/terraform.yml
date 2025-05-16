@@ -65,9 +65,15 @@ on:
         required: false
         type: string
         default: infra
-      budget_email:
-        required: false
-        type: string
+      prefix:     { type: string, default: starter-lh }
+      env_name:   { type: string, default: dev }
+    secrets:
+      budget_email:  { required: true }
+
+env:
+  TF_VAR_prefix:        ${{ inputs.prefix }}
+  TF_VAR_env:           ${{ inputs.env_name }}
+  TF_VAR_budget_email:  ${{ secrets.budget_email }}
 
 permissions:
   contents: read
