@@ -1,0 +1,29 @@
+# ------------------------------------------------------------------
+# Thin wrapper: init → workspace select → terraform apply
+# ------------------------------------------------------------------
+name: terraform_apply
+
+on:
+  workflow_call:
+    inputs:
+      path:          { type: string,  default: infra }
+      bucket:        { type: string }
+      state_key:     { type: string }
+      lock_table:    { type: string }
+      workspace:     { type: string,  default: prod }
+      extra_var:     { type: string,  default: "" }
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: hashicorp/setup-terraform@v3
+      - name: Init & Apply
+        run: |
+          cd ${{ inputs.path }}
+          terraform init -backend-config="bucket=${{ inputs.bucket }}" \
+                         -backend-config="key=${{ inputs.state_key }}" \
+                         -backend-config="region=${AWS_REGION:-us-east-1}" \
+                         -backend-config="dynamodb_table=${{ inputs.lock_table }}"
+          terraform workspace select ${{ inputs.workspace }} || terraform workspace new ${{ inputs.workspace }}
+          terraform apply -auto-approve -input=false ${{ inputs.extra_var && format('-var=\"{0}\"', inputs.extra_var) }}
