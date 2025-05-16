@@ -37,7 +37,7 @@ jobs:
   apply-prod:
     needs: apply-dev
     if: github.ref == 'refs/heads/main'
-    uses: ./ci/workflows/terraform_apply.yml
+    uses: ./.github/workflows/terraform_apply.yml
     with:
       bucket:      ${{ vars.STATE_BUCKET }}
       state_key:   prod/terraform.tfstate
