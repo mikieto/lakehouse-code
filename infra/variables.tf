@@ -10,6 +10,6 @@ variable "env" {
   type        = string
 }
 variable "budget_email" {
-  description = "Who gets the cost alarm"
+  description = "Notification address for cost alarms"
   type        = string
 }
