@@ -5,19 +5,13 @@ name: terraform_template
 on:
   workflow_call:
     inputs:
-      path:
-        required: false
-        type: string
-        default: infra
-      prefix:     { type: string, default: starter-lh }
-      env_name:   { type: string, default: dev }
+      path:        { type: string,  required: true }
+      prefix:      { type: string,  required: true }
+      env_name:    { type: string,  required: true }
+      aws_region:  { type: string,  default: "us-east-1" }
     secrets:
       budget_email:  { required: true }
-
-env:
-  TF_VAR_prefix:        ${{ inputs.prefix }}
-  TF_VAR_env:           ${{ inputs.env_name }}
-  TF_VAR_budget_email:  ${{ secrets.budget_email }}
+      role_to_assume: { required: true }
 
 permissions:
   id-token: write

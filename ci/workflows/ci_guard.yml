@@ -21,11 +21,13 @@ jobs:
   terraform-checks:
     uses: ./.github/workflows/terraform.yml
     with:
-      path: infra                        # default, overrideable
-      prefix:     starter-lh
-      env_name:   dev
+      path:         infra
+      prefix:       starter-lh
+      env_name:     dev
+      aws_region:   ${{ vars.AWS_REGION }}
     secrets:
-      budget_email: ${{ secrets.BUDGET_EMAIL }}
+      budget_email:  ${{ secrets.BUDGET_EMAIL }}
+      role_to_assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
 
 # ------------------------------------------------------------
 # Job 2 – IaC linters & security (tflint + Trivy + SARIF)

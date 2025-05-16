@@ -11,28 +11,29 @@ jobs:
   apply-dev:
     uses: ./.github/workflows/terraform_apply.yml
     with:
-      bucket:      ${{ vars.STATE_BUCKET }}
-      state_key:   ci/terraform.tfstate
-      lock_table:  ${{ vars.LOCK_TABLE }}
-      workspace:   dev
-      extra_var:   env=dev
-      prefix:      starter-lh
-      env_name:    dev
+      bucket:        ${{ vars.STATE_BUCKET }}
+      state_key:     ci/terraform.tfstate
+      lock_table:    ${{ vars.LOCK_TABLE }}
+      workspace:     dev
+      prefix:        starter-lh
+      env_name:      dev
+      aws_region:    ${{ vars.AWS_REGION }}
     secrets:
-      budget_email: ${{ secrets.BUDGET_EMAIL }}
+      budget_email:  ${{ secrets.BUDGET_EMAIL }}
+      role_to_assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
 
   apply-prod:
     if: github.ref == 'refs/heads/main'
     needs: apply-dev
     uses: ./.github/workflows/terraform_apply.yml
     with:
-      bucket:      ${{ vars.STATE_BUCKET }}
-      state_key:   prod/terraform.tfstate
-      lock_table:  ${{ vars.LOCK_TABLE }}
-      workspace:   prod
-      extra_var:   env=prod
-      prefix:      starter-lh
-      env_name:    prod
+      bucket:        ${{ vars.STATE_BUCKET }}
+      state_key:     prod/terraform.tfstate
+      lock_table:    ${{ vars.LOCK_TABLE }}
+      workspace:     prod
+      prefix:        starter-lh
+      env_name:      prod
+      aws_region:    ${{ vars.AWS_REGION }}
     secrets:
-      budget_email: ${{ secrets.BUDGET_EMAIL }}
-      
+      budget_email:  ${{ secrets.BUDGET_EMAIL }}
+      role_to_assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
