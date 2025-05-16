@@ -1,60 +1,127 @@
-# ====================================================================
-# File: .github/workflows/ci_guard.yml
-# Purpose: Lightweight guard – always runs on PR/push
-# ====================================================================
+# ci_guard.yml
 
 name: ci_guard
 
-on: [push, pull_request]      # no label gating
+# Trigger only when IaC or workflow files change
+on:
+  push:
+    paths: [ "infra/**/*.tf", ".github/workflows/**" ]
+  pull_request:
+    paths: [ "infra/**/*.tf", ".github/workflows/**" ]
 
-permissions:
-  contents: read
+# Prevent duplicate runs on the same branch / PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
-# ---------------------------------------------------------------
-# Job 1: Terraform fmt / validate / plan
-# (thin wrapper around official starter-workflow copy)
-# ---------------------------------------------------------------
 jobs:
+# ------------------------------------------------------------
+# Job 1 – Terraform fmt / validate / plan (re-usable template)
+# ------------------------------------------------------------
   terraform-checks:
-    uses: ./.github/workflows/terraform.yml   # official template (thin-customised)
+    uses: ./.github/workflows/terraform.yml
     with:
-      path: infra                        # default, overrideable
-      prefix:     starter-lh
-      env_name:   dev
+      path:         infra
+      prefix:       starter-lh
+      env_name:     dev
+      aws_region:   ${{ vars.AWS_REGION }}
     secrets:
-      budget_email: ${{ secrets.BUDGET_EMAIL }}
+      budget_email:  ${{ secrets.BUDGET_EMAIL }}
+      role_to_assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
 
-# ---------------------------------------------------------------
-# Job 2: IaC linters & security (tflint + tfsec)
-# ---------------------------------------------------------------
+# ------------------------------------------------------------
+# Job 2 – IaC linters & security (tflint + Trivy + SARIF)
+# ------------------------------------------------------------
   security:
     needs: terraform-checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # tflint
-      - uses: terraform-linters/setup-tflint@v1
+      # ---------- tflint (with plugin cache) ----------
+      - name: Cache tflint plugins
+        uses: actions/cache@v4
         with:
-          tflint_version: v0.51.1        # latest 2025-05
-      - run: |
+          path: ~/.tflint.d/plugins
+          key: ${{ runner.os }}-tflint-${{ hashFiles('**/.tflint.hcl') }}
+
+      - name: Setup tflint
+        uses: terraform-linters/setup-tflint@v1
+        with:
+          tflint_version: v0.51.1
+
+      - name: Run tflint
+        run: |
           tflint --init
           tflint
 
-      # tfsec (soft-fail for learning)
-      - uses: aquasecurity/tfsec-action@v1
+      # ---------- Trivy IaC scan (Terraform) ----------
+      - name: Run Trivy config scan
+        uses: aquasecurity/trivy-action@0.30.0
         with:
-          additional_args: --config-file .tfsec.yml --soft-fail
+          scan-type: config            # IaC mode
+          scan-ref: infra              # directory containing *.tf
+          format: sarif
+          output: trivy.sarif
+          exit-code: 0                 # do not fail the job (learning mode)
+          severity: CRITICAL,HIGH      # adjust as needed
 
-# ---------------------------------------------------------------
-# Job 3: SBOM & Great Expectations stubs (push only)
-# ---------------------------------------------------------------
+      # ---------- Upload SARIF to GitHub “Security” tab ----------
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy.sarif
+
+# ------------------------------------------------------------
+# Job 3 – SBOM + Cosign attestation (push to main only)
+# ------------------------------------------------------------
   sbom:
-    if: github.event_name == 'push'      # skip on PRs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: security
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Syft SBOM generation stub"
-      - run: echo "cosign sign stub"
-      - run: echo "Great Expectations contract stub"
+      - uses: actions/checkout@v4
 
+      # ---------- SBOM generation ----------
+      - uses: anchore/sbom-action@v0.17.0
+        with:
+          output-file: sbom.json
+
+      # ---------- Cosign attest SBOM ----------
+      - uses: sigstore/cosign-installer@v3
+      - name: Cosign attest
+        run: |
+          cosign attest --predicate sbom.json \
+                        --key env://COSIGN_PRIVATE_KEY \
+                        ghcr.io/${{ github.repository }}/iac:${{ github.sha }}
+
+      # ---------- Publish SBOM artifact ----------
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+
+      # ---------- Placeholder for Great Expectations data contract ----------
+      - run: echo "TODO - run GE checkpoint once data catalog is available"
+
+# ------------------------------------------------------------
+# Job 4 – Upload plan.json for downstream reuse (Infracost)
+# ------------------------------------------------------------
+  publish-plan:
+    needs: terraform-checks
+    runs-on: ubuntu-latest
+    if: always()               # run even if plan failed (for debugging)
+    steps:
+      - name: Fetch plan.json
+        uses: actions/download-artifact@v4
+        with:
+          name: plan-json
+          path: .
+
+      - name: Re-upload plan.json as tfplan-json
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-json
+          path: plan.json

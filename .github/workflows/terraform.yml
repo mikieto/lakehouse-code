@@ -1,126 +1,71 @@
-# This workflow installs the latest version of Terraform CLI and configures the Terraform CLI configuration file
-# with an API token for Terraform Cloud (app.terraform.io). On pull request events, this workflow will run
-# `terraform init`, `terraform fmt`, and `terraform plan` (speculative plan via Terraform Cloud). On push events
-# to the $default-branch branch, `terraform apply` will be executed.
-#
-# Documentation for `hashicorp/setup-terraform` is located here: https://github.com/hashicorp/setup-terraform
-#
-# To use this workflow, you will need to complete the following setup steps.
-#
-# 1. Create a `main.tf` file in the root of this repository with the `remote` backend and one or more resources defined.
-#   Example `main.tf`:
-#     # The configuration for the `remote` backend.
-#     terraform {
-#       backend "remote" {
-#         # The name of your Terraform Cloud organization.
-#         organization = "example-organization"
-#
-#         # The name of the Terraform Cloud workspace to store Terraform state files in.
-#         workspaces {
-#           name = "example-workspace"
-#         }
-#       }
-#     }
-#
-#     # An example resource that does nothing.
-#     resource "null_resource" "example" {
-#       triggers = {
-#         value = "A example resource that does nothing!"
-#       }
-#     }
-#
-#
-# 2. Generate a Terraform Cloud user API token and store it as a GitHub secret (e.g. TF_API_TOKEN) on this repository.
-#   Documentation:
-#     - https://www.terraform.io/docs/cloud/users-teams-organizations/api-tokens.html
-#     - https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets
-#
-# 3. Reference the GitHub secret in step using the `hashicorp/setup-terraform` GitHub Action.
-#   Example:
-#     - name: Setup Terraform
-#       uses: hashicorp/setup-terraform@v1
-#       with:
-#         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+# terraform.yml
 
-# ------------------------------------------------------------------
-# This file is copied from starter-workflows/deployments/terraform.yml
-# Thin-customised for Starter Lakehouse:
-#   • added workflow_call trigger
-#   • backend=false (local) for safety
-#   • apply step disabled
-# ------------------------------------------------------------------
+name: terraform_template
 
-name: 'Terraform'
-
-# on:
-#  push:
-#    branches: [ $default-branch ]
-#  pull_request:
-
-# reusable workflow trigger
 on:
   workflow_call:
     inputs:
-      path:
-        required: false
-        type: string
-        default: infra
-      prefix:     { type: string, default: starter-lh }
-      env_name:   { type: string, default: dev }
+      path:        { type: string,  required: true }
+      prefix:      { type: string,  required: true }
+      env_name:    { type: string,  required: true }
+      aws_region:  { type: string,  default: "us-east-1" }
     secrets:
       budget_email:  { required: true }
-
-env:
-  TF_VAR_prefix:        ${{ inputs.prefix }}
-  TF_VAR_env:           ${{ inputs.env_name }}
-  TF_VAR_budget_email:  ${{ secrets.budget_email }}
+      role_to_assume: { required: true }
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
   terraform:
-    name: 'Terraform'
     runs-on: ubuntu-latest
-    # environment: production # this is not needed for this learning exercise
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-
+    env:
+      TF_IN_AUTOMATION: "true"
+      TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-    #  uses: hashicorp/setup-terraform@v1
-      uses: hashicorp/setup-terraform@v3
-      with:
-    #    cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-        terraform_version: 1.7.x
+      # ---------- cache plugins ----------
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.terraform.d/plugin-cache
+            ${{ inputs.path }}/.terraform
+          key: ${{ runner.os }}-tf-${{ hashFiles(format('{0}/.terraform.lock.hcl', inputs.path)) }}
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-    #  run: terraform init
-      run: terraform -chdir=${{ inputs.path }} init -backend=false -upgrade # disable backend for safety
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.x
+          terraform_wrapper: false
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-    #  run: terraform fmt -check
-      run: terraform -chdir=${{ inputs.path }} fmt -check -recursive # check formatting of all files in the path
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.role_to_assume }}
+          aws-region:     ${{ inputs.aws_region }}
 
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-    #  run: terraform plan -input=false
-      run: terraform -chdir=${{ inputs.path }} plan -no-color -input=false
+      - name: Terraform init
+        run: |
+          terraform -chdir=${{ inputs.path }} init \
+            -backend-config="bucket=${{ vars.STATE_BUCKET }}" \
+            -backend-config="key=ci/${{ inputs.env_name }}.tfstate" \
+            -backend-config="dynamodb_table=${{ vars.LOCK_TABLE }}" \
+            -backend-config="region=${{ inputs.aws_region }}"
 
-      # On push to $default-branch, build or change infrastructure according to Terraform configuration files
-      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-    - name: Terraform Apply
-      # if: github.ref == 'refs/heads/$default-branch' && github.event_name == 'push'
-      # run: terraform apply -auto-approve -input=false
-      if: false # disable apply to Terraform Cloud for safety
-      run: echo "Apply to Terraform Cloud skipped"
+      - name: Terraform fmt
+        run: terraform -chdir=${{ inputs.path }} fmt -check -recursive
+
+      - name: Terraform plan
+        env:
+          TF_VAR_prefix:        ${{ inputs.prefix }}
+          TF_VAR_env:           ${{ inputs.env_name }}
+          TF_VAR_budget_email:  ${{ secrets.budget_email }}
+        run: terraform -chdir=${{ inputs.path }} plan -no-color -input=false -out=tfplan
+
+      - name: Export plan.json for downstream jobs
+        run: terraform -chdir=${{ inputs.path }} show -json tfplan > plan.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plan-json
+          path: plan.json

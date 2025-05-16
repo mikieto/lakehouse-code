@@ -4,29 +4,58 @@ name: ci_infracost
 
 on:
   pull_request:
-    paths: [ "**/*.tf", ".github/workflows/ci-deploy.yml" ]
+    paths: [ "infra/**/*.tf" ]
   push:
     branches: [ main ]
-    paths: [ "**/*.tf", ".github/workflows/ci-deploy.yml" ]
+    paths:   [ "infra/**/*.tf" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   infracost:
-    # needs write permission to post PR comments
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
-    runs-on: ubuntu-latest
+    env:
+      INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
 
     steps:
-      - uses: actions/checkout@v4
-
-      # Official Infracost starter workflow:
-      # * installs the CLI
-      # * runs breakdown & diff
-      # * posts/updates GitHub PR comment
-      - uses: infracost/actions/diff@v2
+      - uses: actions/download-artifact@v4       # plan from ci_guard
         with:
-          path: infra               # root directory containing *.tf files
-          format: github-comment    # update existing comment or create new
-        env:
-          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+          name: tfplan-json
+          path: .
+
+      # ---------- install Infracost ----------
+      - uses: infracost/actions/setup@v2
+        with:
+          infracost_version: v0.10.33
+
+      # ---------- scan ----------
+      - name: Infracost scan
+        id: scan
+        uses: infracost/actions/scan@v2
+        with:
+          plan-file: plan.json
+          format: json
+          output-file: infracost.json
+
+      # ---------- comment on PR / commit ----------
+      - name: Infracost comment
+        uses: infracost/actions/comment@v2
+        with:
+          path: infracost.json
+          behavior: update
+
+      # ---------- cost guard ----------
+      - name: Fail if monthly diff > $5
+        run: |
+          DIFF=$(infracost output --path infracost.json --format json | jq -r '.diffTotalMonthlyCost')
+          THRESHOLD=5
+          echo "diff = $DIFF USD"
+          if (( $(echo "$DIFF > $THRESHOLD" | bc -l) )); then
+            echo "::error ::Cost increase $DIFF exceeds $THRESHOLD"
+            exit 1
+          fi
