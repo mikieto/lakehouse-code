@@ -80,11 +80,6 @@ jobs:
       run:
         shell: bash
 
-    env:
-      TF_VAR_prefix:       starter-lh
-      TF_VAR_env:          dev
-      TF_VAR_budget_email: ${{ secrets.BUDGET_EMAIL }}
-
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
