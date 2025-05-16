@@ -16,10 +16,6 @@ jobs:
       lock_table:  ${{ vars.LOCK_TABLE }}
       workspace:   dev
       extra_var:   env=dev
-    env:
-      TF_VAR_prefix:       starter-lh
-      TF_VAR_env:          dev
-      TF_VAR_budget_email: ${{ secrets.BUDGET_EMAIL }}
 
   apply-prod:
     if: github.ref == 'refs/heads/main'
@@ -31,8 +27,3 @@ jobs:
       lock_table:  ${{ vars.LOCK_TABLE }}
       workspace:   prod
       extra_var:   env=prod
-    env:
-      TF_VAR_prefix:       starter-lh
-      TF_VAR_env:          dev
-      TF_VAR_budget_email: ${{ secrets.BUDGET_EMAIL }}
-      
