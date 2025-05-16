@@ -26,7 +26,7 @@ jobs:
   # --- apply via reusable workflow (dev → prod) ------------------
   apply-dev:
     needs: oidc
-    uses: ./ci/workflows/terraform_apply.yml
+    uses: ./.github/workflows/terraform_apply.yml
     with:
       bucket:      ${{ vars.STATE_BUCKET }}
       state_key:   ci/terraform.tfstate

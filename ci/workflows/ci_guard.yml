@@ -16,7 +16,7 @@ permissions:
 # ---------------------------------------------------------------
 jobs:
   terraform-checks:
-    uses: ./ci/workflows/terraform.yml   # official template (thin-customised)
+    uses: ./.github/workflows/terraform.yml   # official template (thin-customised)
     with:
       path: infra                        # default, overrideable
 
