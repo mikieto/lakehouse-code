@@ -4,7 +4,7 @@ terraform {
   required_version = ">= 1.5.0"
 }
 
-variable "email" {
+variable "budget_email" {
   type        = string
   description = "Notification address for budget alarms"
 }
@@ -15,16 +15,17 @@ resource "aws_budgets_budget" "lh_monthly_budget" {
   limit_amount = "20"
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
-  cost_filters = { "TagKeyValue" = "Project:StarterLakehouse" }
+
+  cost_filter {
+    name   = "TagKeyValue"
+    values = ["Project:StarterLakehouse"]
+  }
 
   notification {
-    comparison_operator = "GREATER_THAN"
-    threshold           = 90
-    threshold_type      = "PERCENTAGE"
-    notification_type   = "FORECASTED"
-    subscriber {
-      subscription_type = "EMAIL"
-      address           = var.email
-    }
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 100
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "ACTUAL"
+    subscriber_email_addresses = [var.budget_email]
   }
 }
