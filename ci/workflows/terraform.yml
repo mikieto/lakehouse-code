@@ -2,6 +2,20 @@
 
 name: terraform_template
 
+<<<<<<< HEAD
+=======
+name: 'Terraform'
+
+# on:
+#  push:
+#    branches: [ $default-branch ]
+#  pull_request:
+
+env:
+  TF_VAR_budget_email: ${{ secrets.BUDGET_EMAIL }}
+
+# reusable workflow trigger
+>>>>>>> 2ce50b2 (chore(terraform): retrieve budget email address from env var)
 on:
   workflow_call:
     inputs:
@@ -44,6 +58,7 @@ jobs:
           role-to-assume: ${{ secrets.role_to_assume }}
           aws-region:     ${{ inputs.aws_region }}
 
+<<<<<<< HEAD
       - name: Terraform init
         run: |
           terraform -chdir=${{ inputs.path }} init \
@@ -51,6 +66,12 @@ jobs:
             -backend-config="key=ci/${{ inputs.env_name }}.tfstate" \
             -backend-config="dynamodb_table=${{ vars.LOCK_TABLE }}" \
             -backend-config="region=${{ inputs.aws_region }}"
+=======
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+    #  run: terraform plan -input=false
+      run: terraform -chdir=${{ inputs.path }} plan -no-color -input=false
+>>>>>>> 2ce50b2 (chore(terraform): retrieve budget email address from env var)
 
       - name: Terraform fmt
         run: terraform -chdir=${{ inputs.path }} fmt -check -recursive
