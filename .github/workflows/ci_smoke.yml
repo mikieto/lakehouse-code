@@ -15,9 +15,6 @@ on:
 
 jobs:
   smoke-ci:
-    # allow skipping via label “skip-smoke”
-    if: github.event_name != 'pull_request' ||
-        !contains(join(github.event.pull_request.labels.*.name, ','), 'skip-smoke')
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -25,9 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run quick_start smoke
-        run: |
-          chmod +x ./scripts/quick_start.sh
-          ./scripts/quick_start.sh --smoke --local-mode
+        run: bash scripts/quick_start.sh --smoke --local-mode
 
       - name: Smoke summary
         if: always()

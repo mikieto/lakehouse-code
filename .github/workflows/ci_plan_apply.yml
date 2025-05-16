@@ -1,71 +1,46 @@
 name: ci_plan_apply
 
-# Manual trigger and automatic trigger on pushes to main
 on:
   workflow_dispatch:
   push:
     branches: [main]
 
 jobs:
-  apply:
+  oidc:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
     permissions:
-      id-token: write        # allow OIDC token retrieval
-      contents: read         # checkout needs this (defaults to read)
-
+      id-token: write
+      contents: read
     env:
       AWS_REGION:  ${{ vars.AWS_REGION || 'us-east-1' }}
-      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
-      LOCK_TABLE:   ${{ vars.LOCK_TABLE }}
-      TF_VAR_budget_email: ${{ secrets.BUDGET_EMAIL }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # --- OIDC → AssumeRole ---
+      # OIDC credential
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION || 'us-east-1' }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+  # --- apply via reusable workflow (dev → prod) ------------------
+  apply-dev:
+    needs: oidc
+    uses: ./ci/workflows/terraform_apply.yml
+    with:
+      bucket:      ${{ vars.STATE_BUCKET }}
+      state_key:   ci/terraform.tfstate
+      lock_table:  ${{ vars.LOCK_TABLE }}
+      workspace:   dev
+      extra_var:   env=dev
 
-      # -------- CI workspace cleanup --------
-      - name: Destroy CI workspace (best-effort)
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        run: |
-          cd infra
-          terraform init -input=false \
-            -backend-config="bucket=${STATE_BUCKET}" \
-            -backend-config="key=ci/terraform.tfstate" \
-            -backend-config="region=${AWS_REGION}" \
-            -backend-config="dynamodb_table=${LOCK_TABLE}"
-          terraform workspace select ci || terraform workspace new ci
-          terraform destroy -auto-approve -input=false
-
-      # -------- Prod apply (main branch) ----
-      - name: Terraform apply prod
-        if: github.ref == 'refs/heads/main'
-        run: |
-          cd infra
-          terraform init -input=false \
-            -backend-config="bucket=${STATE_BUCKET}" \
-            -backend-config="key=ci/terraform.tfstate" \
-            -backend-config="region=${AWS_REGION}" \
-            -backend-config="dynamodb_table=${LOCK_TABLE}"
-          terraform workspace select prod || terraform workspace new prod
-          start=$(date +%s)
-          terraform apply -auto-approve -input=false -var="env=prod"
-          echo "{\"runtime_sec\":$(( $(date +%s)-start ))}" > /tmp/stopwatch.json
-
-      - name: Upload stopwatch artifact
-        uses: actions/upload-artifact@v4
-        if: github.ref == 'refs/heads/main'
-        with:
-          name: stopwatch
-          path: /tmp/stopwatch.json
+  apply-prod:
+    needs: apply-dev
+    if: github.ref == 'refs/heads/main'
+    uses: ./ci/workflows/terraform_apply.yml
+    with:
+      bucket:      ${{ vars.STATE_BUCKET }}
+      state_key:   prod/terraform.tfstate
+      lock_table:  ${{ vars.LOCK_TABLE }}
+      workspace:   prod
+      extra_var:   env=prod

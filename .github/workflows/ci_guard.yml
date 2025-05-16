@@ -1,70 +1,56 @@
 # ====================================================================
 # File: .github/workflows/ci_guard.yml
-# Purpose: One-job guard – PR gated by labels, main always runs
+# Purpose: Lightweight guard – always runs on PR/push
 # ====================================================================
 
 name: ci_guard
 
-on:
-  pull_request:
-    types: [opened, synchronize, labeled, reopened]
-  push:
-    branches: [ main ]
+on: [push, pull_request]      # no label gating
 
+permissions:
+  contents: read
+
+# ---------------------------------------------------------------
+# Job 1: Terraform fmt / validate / plan
+# (thin wrapper around official starter-workflow copy)
+# ---------------------------------------------------------------
 jobs:
-  iac-guard:
-    # ---------------------------------------------------------------
-    # Job condition:
-    #   • push  → always run
-    #   • pull_request → run only if both required labels are present
-    # ---------------------------------------------------------------
-    if: |
-      github.event_name == 'push' ||
-      (
-        github.event_name == 'pull_request' &&
-        contains(join(github.event.pull_request.labels.*.name, ','), 'environment:') &&
-        contains(join(github.event.pull_request.labels.*.name, ','), 'norm:')
-      )
-    runs-on: ubuntu-latest
+  terraform-checks:
+    uses: ./ci/workflows/terraform.yml   # official template (thin-customised)
+    with:
+      path: infra                        # default, overrideable
 
+# ---------------------------------------------------------------
+# Job 2: IaC linters & security (tflint + tfsec)
+# ---------------------------------------------------------------
+  security:
+    needs: terraform-checks
+    runs-on: ubuntu-latest
     steps:
-    # --- Common setup ---------------------------------------------
       - uses: actions/checkout@v4
 
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.11.4       # stable as of 2025-05
-
+      # tflint
       - uses: terraform-linters/setup-tflint@v1
         with:
-          tflint_version: v0.51.1         # latest as of 2025-05
-
-    # --- Common IaC checks ----------------------------------------
-      - name: terraform fmt (check)
-        run: terraform fmt -recursive -check
-
-      - name: terraform validate
-        run: terraform init -backend=false && terraform validate
-
-      - name: tflint
-        run: |
+          tflint_version: v0.51.1        # latest 2025-05
+      - run: |
           tflint --init
           tflint
 
-      - uses: aquasecurity/tfsec-action@v1.0.1
+      # tfsec (soft-fail for learning)
+      - uses: aquasecurity/tfsec-action@v1
         with:
-          version: latest                 # always download latest tfsec CLI
           additional_args: --config-file .tfsec.yml --soft-fail
 
-    # --- main-only steps ------------------------------------------
-      - name: Generate SBOM (stub)
-        if: github.event_name == 'push'
-        run: echo "Syft SBOM generation stub"
+# ---------------------------------------------------------------
+# Job 3: SBOM & Great Expectations stubs (push only)
+# ---------------------------------------------------------------
+  sbom:
+    if: github.event_name == 'push'      # skip on PRs
+    needs: security
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Syft SBOM generation stub"
+      - run: echo "cosign sign stub"
+      - run: echo "Great Expectations contract stub"
 
-      - name: Sign SBOM with cosign (stub)
-        if: github.event_name == 'push'
-        run: echo "cosign sign stub"
-
-      - name: Great Expectations data contract (stub)
-        if: github.event_name == 'push'
-        run: echo "GE contract check stub"
