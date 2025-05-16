@@ -65,6 +65,9 @@ on:
         required: false
         type: string
         default: infra
+      budget_email:
+        required: false
+        type: string
 
 permissions:
   contents: read
