@@ -22,7 +22,6 @@ jobs:
     uses: ./.github/workflows/terraform.yml
     with:
       path: infra                        # default, overrideable
-      budget_email: ${{ secrets.BUDGET_EMAIL }}
 
 # ------------------------------------------------------------
 # Job 2 – IaC linters & security (tflint + Trivy + SARIF)
