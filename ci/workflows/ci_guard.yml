@@ -22,7 +22,6 @@ jobs:
     uses: ./.github/workflows/terraform.yml
     with:
       path: infra                        # default, overrideable
-    secrets:
       budget_email: ${{ secrets.BUDGET_EMAIL }}
 
 # ------------------------------------------------------------
