@@ -57,6 +57,9 @@ name: 'Terraform'
 #    branches: [ $default-branch ]
 #  pull_request:
 
+env:
+  TF_VAR_budget_email: ${{ secrets.BUDGET_EMAIL }}
+
 # reusable workflow trigger
 on:
   workflow_call:
@@ -106,7 +109,7 @@ jobs:
     # Generates an execution plan for Terraform
     - name: Terraform Plan
     #  run: terraform plan -input=false
-      run: terraform -chdir=${{ inputs.path }} plan -no-color
+      run: terraform -chdir=${{ inputs.path }} plan -no-color -input=false
 
       # On push to $default-branch, build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
