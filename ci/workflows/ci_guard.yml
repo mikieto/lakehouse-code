@@ -1,0 +1,56 @@
+# ====================================================================
+# File: .github/workflows/ci_guard.yml
+# Purpose: Lightweight guard – always runs on PR/push
+# ====================================================================
+
+name: ci_guard
+
+on: [push, pull_request]      # no label gating
+
+permissions:
+  contents: read
+
+# ---------------------------------------------------------------
+# Job 1: Terraform fmt / validate / plan
+# (thin wrapper around official starter-workflow copy)
+# ---------------------------------------------------------------
+jobs:
+  terraform-checks:
+    uses: ./ci/workflows/terraform.yml   # official template (thin-customised)
+    with:
+      path: infra                        # default, overrideable
+
+# ---------------------------------------------------------------
+# Job 2: IaC linters & security (tflint + tfsec)
+# ---------------------------------------------------------------
+  security:
+    needs: terraform-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # tflint
+      - uses: terraform-linters/setup-tflint@v1
+        with:
+          tflint_version: v0.51.1        # latest 2025-05
+      - run: |
+          tflint --init
+          tflint
+
+      # tfsec (soft-fail for learning)
+      - uses: aquasecurity/tfsec-action@v1
+        with:
+          additional_args: --config-file .tfsec.yml --soft-fail
+
+# ---------------------------------------------------------------
+# Job 3: SBOM & Great Expectations stubs (push only)
+# ---------------------------------------------------------------
+  sbom:
+    if: github.event_name == 'push'      # skip on PRs
+    needs: security
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Syft SBOM generation stub"
+      - run: echo "cosign sign stub"
+      - run: echo "Great Expectations contract stub"
+

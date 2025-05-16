@@ -1,0 +1,32 @@
+# ci_infracost.yml
+
+name: ci_infracost
+
+on:
+  pull_request:
+    paths: [ "**/*.tf", ".github/workflows/ci-deploy.yml" ]
+  push:
+    branches: [ main ]
+    paths: [ "**/*.tf", ".github/workflows/ci-deploy.yml" ]
+
+jobs:
+  infracost:
+    # needs write permission to post PR comments
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Official Infracost starter workflow:
+      # * installs the CLI
+      # * runs breakdown & diff
+      # * posts/updates GitHub PR comment
+      - uses: infracost/actions/diff@v2
+        with:
+          path: infra               # root directory containing *.tf files
+          format: github-comment    # update existing comment or create new
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}

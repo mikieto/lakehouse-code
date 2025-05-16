@@ -1,0 +1,46 @@
+name: ci_plan_apply
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  oidc:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION:  ${{ vars.AWS_REGION || 'us-east-1' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # OIDC credential
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+  # --- apply via reusable workflow (dev → prod) ------------------
+  apply-dev:
+    needs: oidc
+    uses: ./ci/workflows/terraform_apply.yml
+    with:
+      bucket:      ${{ vars.STATE_BUCKET }}
+      state_key:   ci/terraform.tfstate
+      lock_table:  ${{ vars.LOCK_TABLE }}
+      workspace:   dev
+      extra_var:   env=dev
+
+  apply-prod:
+    needs: apply-dev
+    if: github.ref == 'refs/heads/main'
+    uses: ./ci/workflows/terraform_apply.yml
+    with:
+      bucket:      ${{ vars.STATE_BUCKET }}
+      state_key:   prod/terraform.tfstate
+      lock_table:  ${{ vars.LOCK_TABLE }}
+      workspace:   prod
+      extra_var:   env=prod
