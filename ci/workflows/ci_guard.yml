@@ -19,10 +19,8 @@ jobs:
     uses: ./.github/workflows/terraform.yml   # official template (thin-customised)
     with:
       path: infra                        # default, overrideable
-    env:
-      TF_VAR_prefix:       starter-lh
-      TF_VAR_env:          dev
-      TF_VAR_budget_email: ${{ secrets.BUDGET_EMAIL }}
+    secrets:
+      budget_email: ${{ secrets.BUDGET_EMAIL }
 
 # ---------------------------------------------------------------
 # Job 2: IaC linters & security (tflint + tfsec)
