@@ -112,7 +112,7 @@ jobs:
       - uses: actions/checkout@v4
 
       # ---------- SBOM generation ----------
-      - uses: anchore/sbom-action@v0.17.0
+      - uses: anchore/sbom-action@v0.17.1
         with:
           output-file: sbom.json
 
