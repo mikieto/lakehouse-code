@@ -1,5 +1,5 @@
 
-# Project Plan — *Starter Lakehouse*  2025-05-15
+# Project Plan — *Starter Lakehouse*  2025-05-17
 
 > **Mission** – Provide a *Starter Lakehouse* any learner can  
 > spin-up, query and tear down in **≤ 30 minutes** for **≤ USD 20 per month**,  
@@ -18,8 +18,8 @@ We apply the **Golden Template** strategy:
 | Principle | How we realise it |
 |-----------|-------------------|
 | Official-first | `actions/starter-workflows` & `terraform-aws-modules/*` are **forked** into our GitHub org. |
-| Thin-custom | Cost guard (Infracost & AWS Budgets) and security guard (tfsec, Trivy, cosign) are added as reusable workflows in **`ci/workflows/`**. |
-| Single Source of Truth | `make sync-ci` copies reusable workflows into `.github/workflows/`. Docs blocks are synced via `scripts/sync_exit_block.py`. |
+| Thin-custom | Cost guard (Infracost & AWS Budgets) and security guard (tflint, Trivy) are added as reusable workflows in **`ci/workflows/`**. |
+| Single Source of Truth | `make sync-ci` copies reusable workflows into `.github/workflows/`; a pre-commit hook enforces the copy. Docs blocks are synced via `scripts/sync_exit_block.py`. |
 | Self-service | `make new-module name=...` runs Cookiecutter to scaffold Terraform modules with pre-commit hooks. |
 | Evergreen | Monthly `gh workflow run dependabot` keeps forks in sync with upstream. |
 
@@ -41,7 +41,7 @@ We apply the **Golden Template** strategy:
 
 ## 3  Exit Criteria — **`starter-done`**
 
-Exit Criteria → ../README.md
+Exit Criteria → `../README.md`
 
 *Any commit passing all seven checks is tagged **`starter-done`** and the base is frozen.*
 
@@ -49,7 +49,7 @@ Exit Criteria → ../README.md
 
 ## 4  Roadmap & Sprints
 
-Here’s the re-balanced Roadmap with the two fixes applied:
+Here’s the re-balanced roadmap (LOCK_TABLE removal already included):
 
 | Sprint                 | Focus                                       | Exit # (target to achieve) | Key CI Jobs                                      | Owner            |
 | ---------------------- | ------------------------------------------- | -------------------------- | ------------------------------------------------ | ---------------- |

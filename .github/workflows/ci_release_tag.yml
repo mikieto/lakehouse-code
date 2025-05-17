@@ -1,36 +1,61 @@
+# ci_release_tab.yml
+
 name: ci_release_tag
 
+# Run after the ***ci_plan_apply*** workflow finishes on *main* and succeeds
 on:
   workflow_run:
-    workflows: [ "ci_plan_apply" ]        # run after main CI
-    types: [ completed ]
+    workflows: [ "ci_plan_apply" ]
+    types:     [ completed ]
+    branches:  [ main ]
+
+permissions:
+  contents: write        # needed to create tags & releases
+  actions:  read         # needed to download artifacts
 
 jobs:
-  tag-and-release:
-    # Run only if CI succeeded on main
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main'
+  release:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+
     steps:
+      # Checkout the exact commit that passed CI
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Set tag name
-        id: tag
-        run: echo "TAG=starter-done-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
-
-      - name: Create git tag
+      # ──────────────────────────────────────────────────────────────
+      # Generate a unique tag:  starter-done-YYYYMMDD (-N if duplicate)
+      # ──────────────────────────────────────────────────────────────
+      - name: Compute tag name
+        id: vars
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag  ${{ steps.tag.outputs.TAG }}
-          git push origin ${{ steps.tag.outputs.TAG }}
+          BASE="starter-done-$(date -u +%Y%m%d)"
+          n=0
+          TAG=$BASE
+          while git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; do
+            n=$((n+1))
+            TAG="${BASE}-${n}"
+          done
+          echo "tag=$TAG" >>"$GITHUB_OUTPUT"
 
-      # Optional – publish a release page
-      - name: Create GitHub Release
+      # ──────────────────────────────────────────────────────────────
+      # (Optional) pull SBOM artifact produced by *ci_guard* → sbom.json
+      # ──────────────────────────────────────────────────────────────
+      - name: Download SBOM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom           # must match the upload name in ci_guard
+          path: sbom
+
+      # ──────────────────────────────────────────────────────────────
+      # Create GitHub Release; the action creates the tag if absent.
+      # The SBOM file is attached as a release asset.
+      # ──────────────────────────────────────────────────────────────
+      - name: Create GitHub Release (auto-tag + assets)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag.outputs.TAG }}
-          name: "Starter Lakehouse ${{ steps.tag.outputs.TAG }}"
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: "Starter Lakehouse ${{ steps.vars.outputs.tag }}"
+          generate_release_notes: true
+          files: sbom/sbom.json       # <-- attach SBOM as asset

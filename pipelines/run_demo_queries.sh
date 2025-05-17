@@ -6,11 +6,11 @@ WG=$(terraform -chdir=infra output -raw athena_workgroup_name)
 BUCKET=$(terraform -chdir=infra output -raw raw_bucket)
 
 # --- Submit a lightweight query ----------------------------------------------
-SQL="SELECT 1;"
+SQL='SELECT 1;'
 QID=$(aws athena start-query-execution \
         --work-group "$WG" \
         --query-string "$SQL" \
-        --result-configuration "OutputLocation=s3://$BUCKET/athena/" \
+        --result-configuration "OutputLocation=s3://$BUCKET/athena-results/" \
         --output text --query 'QueryExecutionId')
 
 echo "QueryExecutionId: $QID  – waiting ..."
@@ -33,4 +33,4 @@ RESULT=$(aws athena get-query-results \
            --query-execution-id "$QID" \
            --output text --query 'ResultSet.Rows[1].Data[0].VarCharValue')
 
-echo "Athena returned: $RESULT"
+echo "✅  Athena returned: $RESULT"

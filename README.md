@@ -3,7 +3,7 @@
 > **Single-source note:** canonical locations are listed in `CONTRIBUTING.md §0`.  
 > Spin up → learn → tear down a fully-managed, **serverless Lakehouse in ≤ 30 minutes** for ≈ US $20 / month.
 
-| Guard <br>(static + FinOps) | Plan-Apply | License | Budget ≤ US $20 |
+| Guard (static + FinOps) | Plan-Apply | License | Budget ≤ US $20 |
 |-----------------------------|-----------|---------|-----------------|
 | ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_guard.yml?label=guard&logo=github) | ![plan](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_plan_apply.yml?label=plan-apply&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
 
@@ -47,35 +47,33 @@
 
 ## 📂 Repo layout
 
-➡️ Browse the full tree in [project _plan.md §5 Repository Structure](docs/project_plan.md#5-repository-structure).
+➡️ See [project _plan.md §5 Repository Structure](docs/project_plan.md#5-repository-structure).
 
 ---
 
 ## ⚡️ Quick Start (~ 30 min)
 
-1. **Clone & env-file** – clone the repo and copy `.env.sample → .env` with your AWS profile + region.  
-2. **Run `scripts/quick_start.sh`** – the wrapper script orchestrates everything below:
-   * *Terraform* `init → apply` to provision the minimal Lakehouse stack (S3 / Glue / Iceberg catalog, etc.).
-   * *Infracost* diff to surface projected monthly spend.
-   * *Smoke workflow* triggers — Athena runs `SELECT 1;` via [`pipelines/run_demo_queries.sh`](pipelines/run_demo_queries.sh) to prove the stack is reachable.
-   * *Budget Alarm* example deploys a Cost-Explorer alert at ¥3 000 / mo.
-   * Prints **Next Steps** (dbt seed, notebook URL, teardown command).
-3. **Optional `make destroy`** – one-liner to clean all resources.
-
-*Outcome: working, budget-guarded Lakehouse in ≈ 30 min.*
+> **Prereqs:** AWS CLI, Terraform ≥ 1.5, valid AWS profile in `~/.aws/credentials`
 
 ```bash
 git clone https://github.com/mikieto/lakehouse-code.git
 cd lakehouse-code
 
-# Deploy everything (≈ 20-25 min)
-./scripts/quick_start.sh --deploy
+# 1) Provision the dev stack  (≈ 20-25 min)
+export STATE_BUCKET=<your-unique-tfstate-bucket>      # created automatically if absent
+export LOCK_TABLE=<your-unique-dynamodb-table>        # same
+export AWS_REGION=us-east-1                           # or your region
 
-# Smoke-test Iceberg round-trip (< 1 min)
-bash pipelines/run_demo_queries.sh
-````
+make up
 
-**Destroy**: `./scripts/quick_start.sh --destroy` (≈ 3 min)
+# 2) Smoke test – Athena should return “1” (< 1 min)
+make smoke
+
+# 3) Tear down everything (≈ 3-4 min)
+make destroy
+```
+
+Result: a working, budget-guarded Lakehouse you can explore in under 30 minutes.
 
 ---
 

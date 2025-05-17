@@ -11,6 +11,7 @@ variable "env" {
   type        = string
   default     = "starter-lh"
 }
+
 variable "budget_email" {
   description = "Notification address for cost alarms"
   type        = string
