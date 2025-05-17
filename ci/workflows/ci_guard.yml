@@ -81,6 +81,9 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: security
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -91,7 +94,18 @@ jobs:
 
       # ---------- Cosign attest SBOM ----------
       - uses: sigstore/cosign-installer@v3
-      - name: Cosign attest
+  
+
+      # Derive image digest from tag to avoid “tag” warning
+      - name: Resolve image digest
+        id: digest
+        env:
+          IMG_TAG: ghcr.io/${{ github.repository }}/iac:${{ github.sha }}
+        run: |
+          DIGEST=$(cosign triangulate "${IMG_TAG}")
+          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT
+
+      - name: Cosign attest SBOM
         run: |
           cosign attest --predicate sbom.json \
                         --key env://COSIGN_PRIVATE_KEY \
