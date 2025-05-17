@@ -1,7 +1,7 @@
 # budget.tf - stop-spend budget: monthly cap US$20
 
 resource "aws_budgets_budget" "skeleton" {
-  name         = "${var.prefix}-monthly-budget"
+  name         = "${local.full_prefix}-monthly-budget"
   budget_type  = "COST"
   limit_amount = "20"
   limit_unit   = "USD"

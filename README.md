@@ -1,10 +1,10 @@
 # 🚀 30-Minute Self-Service Lakehouse
 
-> **Single-source note:** canonical locations are listed in CONTRIBUTING.md §0.
-> Spin up → learn → tear down a fully-managed, **serverless Lakehouse in under 30 minutes** for ≈ US $20 / month.
+> **Single-source note:** canonical locations are listed in `CONTRIBUTING.md §0`.  
+> Spin up → learn → tear down a fully-managed, **serverless Lakehouse in ≤ 30 minutes** for ≈ US $20 / month.
 
-| Guard | Plan-Apply | License | Budget ≤ US $20 |
-|-------|-----------|---------|-----------------|
+| Guard <br>(static + FinOps) | Plan-Apply | License | Budget ≤ US $20 |
+|-----------------------------|-----------|---------|-----------------|
 | ![guard](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_guard.yml?label=guard&logo=github) | ![plan](https://img.shields.io/github/actions/workflow/status/mikieto/lakehouse-code/ci_plan_apply.yml?label=plan-apply&logo=github) | ![license](https://img.shields.io/github/license/mikieto/lakehouse-code?color=blue) | ![cost](https://img.shields.io/badge/monthly_cost-≤%20\$20-brightgreen) |
 
 ---
@@ -13,7 +13,7 @@
 
 | Why / What / How | Resource / TL;DR |
 |------------------|------------------|
-| **Why** – Two macro-shifts: **1️⃣ Physical → Logical** (cloud-native tags, IAM, policies replace rack-level fences) **& 2️⃣ Manual → Code-as-Default** (configs, tests, policies live in Git) | *Intro chapter of the book* |
+| **Why** – Two macro-shifts: **1️⃣ Physical → Logical** (cloud-native tags, IAM, policies replace rack-level fences) & **2️⃣ Manual → Code-as-Default** (configs, tests, policies live in Git) | *Intro chapter of the book* |
 | **What** – Five modern-data pillars: **Elastic · Serverless · Governed · Cost-Aware · AI-Ready** — the yardsticks that drive every design and CI gate in this repo | *Chapter 2 of the book* |
 | **How** – Ten-Principles cheat-sheet | [`docs/ten_principles_cheat_sheet.md`](docs/ten_principles_cheat_sheet.md) |
 | **What** – Tool-Triad: **Terraform Modules** (infra), **GitHub Reusable Workflows** (automation), **Apache Iceberg** (open-table format) — the glue that lets you reuse the patterns in any cloud | *Hands-on chapters 4-7* |
@@ -47,23 +47,22 @@
 
 ## 📂 Repo layout
 
-➡️  See the full table in [project _plan.md §5 Repository Structure](docs/project_plan.md#5-repository-structure).
+➡️ Browse the full tree in [project _plan.md §5 Repository Structure](docs/project_plan.md#5-repository-structure).
 
 ---
 
 ## ⚡️ Quick Start (~ 30 min)
 
-1. **Clone & env‑file** – user clones repo and copies `.env.sample → .env` with AWS profile + region.
+1. **Clone & env-file** – clone the repo and copy `.env.sample → .env` with your AWS profile + region.  
 2. **Run `scripts/quick_start.sh`** – the wrapper script orchestrates everything below:
+   * *Terraform* `init → apply` to provision the minimal Lakehouse stack (S3 / Glue / Iceberg catalog, etc.).
+   * *Infracost* diff to surface projected monthly spend.
+   * *Smoke workflow* triggers — Athena runs `SELECT 1;` via [`pipelines/run_demo_queries.sh`](pipelines/run_demo_queries.sh) to prove the stack is reachable.
+   * *Budget Alarm* example deploys a Cost-Explorer alert at ¥3 000 / mo.
+   * Prints **Next Steps** (dbt seed, notebook URL, teardown command).
+3. **Optional `make destroy`** – one-liner to clean all resources.
 
-   * *Terraform* `init → apply` to provision minimal lakehouse stack (S3 / Glue / Iceberg catalog, etc.).
-   * *Infracost* check to surface projected monthly spend.
-   * *Smoke workflow* triggers (`ci/ci_smoke.yml`) to prove infra is reachable.
-   * *Budget Alarm* example deploys a Cost‑Explorer alert at ¥3 000 / mo.
-   * Prints **Next Steps** (dbt seed, notebook URL, teardown command).
-3. **Optional `make destroy`** – one‑liner to clean all resources.
-
-*Outcome: working, budget‑guarded lakehouse in ≈30 min.*
+*Outcome: working, budget-guarded Lakehouse in ≈ 30 min.*
 
 ```bash
 git clone https://github.com/mikieto/lakehouse-code.git
@@ -94,10 +93,8 @@ bash pipelines/run_demo_queries.sh
 
 ---
 
-## 🔗 FinOps Alarm Guide
-
-See **[`docs/budget_alarm.md`](docs/budget_alarm.md)** for the 5-step procedure to verify cost alerts.
-← Back to [Reading Guide](#reading-guide)
+> **Naming note** – file / directory names must be `snake_case`.
+> If you really need a kebab-case file (e.g. `docker-compose.yml`), add its path to `.case_check_ignore` as explained in [Contributing §2](CONTRIBUTING.md#2--naming-convention).
 
 ---
 

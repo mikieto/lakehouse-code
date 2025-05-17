@@ -1,6 +1,6 @@
 # glue.tf - minimal metadata layer ─ one Glue DB + demo table
 resource "aws_glue_catalog_database" "demo" {
-  name = "${var.prefix}_db"
+  name = "${local.full_prefix}_db"
 }
 
 resource "aws_glue_catalog_table" "customers" {

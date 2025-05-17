@@ -1,6 +1,4 @@
-###############################################################################
-# Athena workgroup – encrypted query results
-###############################################################################
+# infra/athena.tf
 
 ###########################
 # 1. KMS key for Athena   #
@@ -14,7 +12,8 @@ resource "aws_kms_key" "athena_cmk" {
 # 2. Athena workgroup definition #
 ##################################
 resource "aws_athena_workgroup" "lakehouse" {
-  name = "lakehouse_wg"
+  name          = "${local.full_prefix}-wg"
+  force_destroy = true # <- allow deletion even if the WG is not empty
 
   configuration {
     enforce_workgroup_configuration = true

@@ -1,0 +1,26 @@
+# ───────────────────── < 50 chars ─────────────────────
+<type>(<scope>): <imperative subject>
+
+# Leave exactly one blank line above this comment.
+# Wrap body lines at 72 chars. Explain WHAT & WHY, not HOW.
+
+* Bullet 1 — Key change or addition
+* Bullet 2 — Reasoning / context
+* Ref: #123  (related issue or ticket)
+
+# Optional footer
+# BREAKING CHANGE: describe required migration steps
+# Co-authored-by: Name <email@example.com>
+# ───────────────────────────────────────────────────────
+
+# Conventional commit types (common):
+#   feat, fix, docs, style, refactor, perf, test,
+#   build, ci, chore, revert
+#
+# ⟨scope⟩ examples:
+#   infra, ci, docs, api, db, ui
+#
+# Tips:
+# • Title: imperative mood, ≤ 50 chars, no period.
+# • Body: 1-2 sentences or concise bullets.
+# • Use past tense only in BREAKING CHANGE details.

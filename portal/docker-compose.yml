@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  portal:
+    image: backstage/backstage
+    ports: ["7007:7007"]
+    environment:
+      - APP_CONFIG_app_baseUrl=http://localhost:7007
