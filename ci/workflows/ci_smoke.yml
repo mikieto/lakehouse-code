@@ -1,7 +1,4 @@
-# ====================================================================
-# File: .github/workflows/ci_smoke.yml
-# Purpose: Run quick_start smoke test on local Docker compose
-# ====================================================================
+# ci_smoke.yml
 
 name: ci_smoke
 
