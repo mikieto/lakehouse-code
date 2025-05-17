@@ -35,7 +35,7 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(ci): auto-sync workflows"
-          push_options: '--force-with-lease'
+          push_options: '--force-with-lease --no-tags'
 
 # ------------------------------------------------------------
 # Job 1 – Terraform fmt / validate / plan (re-usable template)
@@ -115,13 +115,6 @@ jobs:
       - uses: anchore/sbom-action@v0.17.0
         with:
           output-file: sbom.json
-
-      - name: Cosign attest SBOM
-        run: |
-          cosign attest --predicate sbom.json \
-                        --key env://COSIGN_PRIVATE_KEY \
-                        ghcr.io/${{ github.repository }}/iac:${{ github.sha }}
-
 
       # ---------- Publish SBOM artifact ----------
       - uses: actions/upload-artifact@v4
