@@ -94,7 +94,6 @@ jobs:
 
       # ---------- Cosign attest SBOM ----------
       - uses: sigstore/cosign-installer@v3
-  
 
       # Derive image digest from tag to avoid “tag” warning
       - name: Resolve image digest
