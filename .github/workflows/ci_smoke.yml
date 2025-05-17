@@ -1,0 +1,28 @@
+# ci_smoke.yml
+
+name: ci_smoke
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'scripts/quick_start.sh', '**/docker-compose*', 'Makefile' ]
+  pull_request:
+    paths: [ 'scripts/quick_start.sh', '**/docker-compose*', 'Makefile' ]
+  workflow_dispatch:
+
+jobs:
+  smoke-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run quick_start smoke
+        run: bash scripts/quick_start.sh --smoke --local-mode
+
+      - name: Smoke summary
+        if: always()
+        run: |
+          echo "### Smoke Test Result"            >> $GITHUB_STEP_SUMMARY
+          echo "workflow = ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
