@@ -15,10 +15,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+#--------------------------------------------------
+# 0) Sync canonical → .github/workflows
+#--------------------------------------------------
+  sync-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/sync_ci_block.py
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(ci): auto-sync workflows"
+          push_options: '--force-with-lease'
+
 # ------------------------------------------------------------
 # Job 1 – Terraform fmt / validate / plan (re-usable template)
 # ------------------------------------------------------------
   terraform-checks:
+    needs: sync-workflows
     uses: ./.github/workflows/terraform.yml
     with:
       path:         infra
@@ -97,7 +111,7 @@ jobs:
 
       # ---------- Cosign attest SBOM ----------
       - uses: sigstore/cosign-installer@v3
-
+  
       # Derive image digest from tag to avoid “tag” warning
       - name: Resolve image digest
         id: digest
@@ -112,6 +126,7 @@ jobs:
           cosign attest --predicate sbom.json \
                         --key env://COSIGN_PRIVATE_KEY \
                         ghcr.io/${{ github.repository }}/iac:${{ github.sha }}
+
 
       # ---------- Publish SBOM artifact ----------
       - uses: actions/upload-artifact@v4

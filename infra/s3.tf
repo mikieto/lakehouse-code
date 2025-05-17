@@ -1,3 +1,4 @@
+# infra/s3.tf
 ###############################################################################
 # S3 – two data buckets: “raw” landing zone and Iceberg table storage
 # Includes:
