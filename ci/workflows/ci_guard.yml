@@ -86,6 +86,7 @@ jobs:
       packages: read
       packages: write
       id-token:  write
+      
     steps:
       - uses: actions/checkout@v4
 
@@ -97,7 +98,6 @@ jobs:
       # ---------- Cosign attest SBOM ----------
       - uses: sigstore/cosign-installer@v3
   
-
       # Derive image digest from tag to avoid “tag” warning
       - name: Resolve image digest
         id: digest
@@ -112,6 +112,7 @@ jobs:
           cosign attest --predicate sbom.json \
                         --key env://COSIGN_PRIVATE_KEY \
                         ghcr.io/${{ github.repository }}/iac:${{ github.sha }}
+
 
       # ---------- Publish SBOM artifact ----------
       - uses: actions/upload-artifact@v4
