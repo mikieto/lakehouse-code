@@ -18,7 +18,7 @@ resource "aws_budgets_budget" "lh_monthly_budget" {
 
   cost_filter {
     name   = "TagKeyValue"
-    values = ["Project:StarterLakehouse"]
+    values = ["Project$${local.full_prefix}"] # Key$Value style 
   }
 
   notification {

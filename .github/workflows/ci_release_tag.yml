@@ -1,0 +1,36 @@
+name: ci_release_tag
+
+on:
+  workflow_run:
+    workflows: [ "ci_plan_apply" ]        # run after main CI
+    types: [ completed ]
+
+jobs:
+  tag-and-release:
+    # Run only if CI succeeded on main
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Set tag name
+        id: tag
+        run: echo "TAG=starter-done-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Create git tag
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag  ${{ steps.tag.outputs.TAG }}
+          git push origin ${{ steps.tag.outputs.TAG }}
+
+      # Optional – publish a release page
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.TAG }}
+          name: "Starter Lakehouse ${{ steps.tag.outputs.TAG }}"

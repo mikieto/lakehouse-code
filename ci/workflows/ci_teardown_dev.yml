@@ -1,0 +1,33 @@
+name: ci_teardown_dev
+
+on:
+  push:
+    tags: [ 'starter-done-*' ]          # fire on version tags
+
+permissions:
+  id-token: write                       # OIDC
+  contents: read
+
+jobs:
+  destroy-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      # AWS auth via the same OIDC role
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_OIDC_ROLE_ARN }}
+          aws-region:     ${{ vars.AWS_REGION }}
+
+      # Destroy dev workspace; backend config mirrors ci_plan_apply
+      - name: Terraform destroy
+        run: |
+          terraform -chdir=infra init \
+            -backend-config="bucket=${{ vars.STATE_BUCKET }}" \
+            -backend-config="key=ci/terraform.tfstate" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ vars.LOCK_TABLE }}"
+          terraform -chdir=infra workspace select dev
+          terraform -chdir=infra destroy -auto-approve

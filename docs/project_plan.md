@@ -152,6 +152,7 @@ Managed by **release-please** — manual edits forbidden.
 
 | Date       | Author  | Summary                                                            |
 | ---------- | ------- | ------------------------------------------------------------------ |
+| 2025-05-16 | @editor | README repo table DRY'ed; direct push allowed for docs.            |
 | 2025-05-15 | @editor | repo flatten & P0 completed                                        |
 | 2025-05-15 | @editor | Flattened repo; portal folder; CI/Docs links; two-phase workflow   |
 | 2025-05-11 | @editor | Mark plan.md as canonical for Exit Criteria; added BEGIN/END block |

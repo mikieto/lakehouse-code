@@ -3,7 +3,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "pre-commit install",
+  "postCreateCommand": "git config --local commit.template .gitmessage; pre-commit install",
   "customizations": {
     "vscode": {
       "extensions": [
