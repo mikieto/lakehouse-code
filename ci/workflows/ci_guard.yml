@@ -25,9 +25,9 @@ jobs:
       prefix:       starter-lh
       env_name:     dev
       aws_region:   ${{ vars.AWS_REGION }}
+      role_to_assume: ${{ vars.AWS_OIDC_ROLE_ARN }}
     secrets:
       budget_email:  ${{ secrets.BUDGET_EMAIL }}
-      role_to_assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
 
 # ------------------------------------------------------------
 # Job 2 – IaC linters & security (tflint + Trivy + SARIF)
@@ -83,7 +83,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: read
       packages: write
+      id-token:  write
+      
     steps:
       - uses: actions/checkout@v4
 
@@ -102,7 +105,7 @@ jobs:
           IMG_TAG: ghcr.io/${{ github.repository }}/iac:${{ github.sha }}
         run: |
           DIGEST=$(cosign triangulate "${IMG_TAG}")
-          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT
+          echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
 
       - name: Cosign attest SBOM
         run: |
