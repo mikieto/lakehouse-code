@@ -50,3 +50,12 @@ repos:
         name: snake_case_only
         entry: scripts/case_check.sh
         language: script
+
+  # --- sync-ci hook
+  - repo: local
+    hooks:
+      - id: sync-ci
+        name: sync-ci-workflows
+        entry: make sync-ci
+        language: system
+        always_run: true

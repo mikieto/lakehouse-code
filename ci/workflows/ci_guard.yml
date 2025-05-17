@@ -15,10 +15,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+#--------------------------------------------------
+# 0) Sync canonical → .github/workflows
+#--------------------------------------------------
+  sync-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/sync_ci_block.py
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(ci): auto-sync workflows"
+          push_options: '--force-with-lease'
+
 # ------------------------------------------------------------
 # Job 1 – Terraform fmt / validate / plan (re-usable template)
 # ------------------------------------------------------------
   terraform-checks:
+    needs: sync-workflows
     uses: ./.github/workflows/terraform.yml
     with:
       path:         infra
@@ -83,7 +97,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: read
       packages: write
       id-token:  write
       

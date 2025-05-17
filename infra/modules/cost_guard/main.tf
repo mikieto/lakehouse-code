@@ -4,13 +4,14 @@ terraform {
   required_version = ">= 1.5.0"
 }
 
+variable "full_prefix" { type = string }
 variable "budget_email" {
   type        = string
   description = "Notification address for budget alarms"
 }
 
 resource "aws_budgets_budget" "lh_monthly_budget" {
-  name         = "lh_monthly_budget"
+  name         = "${var.full_prefix}-budget"
   budget_type  = "COST"
   limit_amount = "20"
   limit_unit   = "USD"
