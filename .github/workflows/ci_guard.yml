@@ -97,10 +97,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: read
       packages: write
       id-token:  write
-
+      
     steps:
       - uses: actions/checkout@v4
 
