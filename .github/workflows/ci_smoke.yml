@@ -1,4 +1,4 @@
-# ci/workflows/ci_smoke.yml
+# ci_smoke.yml
 
 name: ci_smoke
 

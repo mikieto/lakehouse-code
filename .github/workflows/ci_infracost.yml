@@ -4,11 +4,13 @@ name: ci_infracost
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     paths: [ "infra/**/*.tf" ]
   push:
     branches: [ main ]
     paths:   [ "infra/**/*.tf" ]
 
+# Cancel superseded runs on the same branch/PR
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -17,45 +19,73 @@ jobs:
   infracost:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: write
+      contents: read          # needed by checkout + CLI
+      pull-requests: write    # needed to post PR comments
     env:
       INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+      SSH_AUTH_SOCK: /tmp/ssh_agent.sock   # uncomment if you add a GIT_SSH_KEY step
 
     steps:
-      - uses: actions/download-artifact@v4       # plan from ci_guard
-        with:
-          name: tfplan-json
-          path: .
+    # ──────────────────────────── 0) Install the CLI ────────────────────────────
+    - name: Setup Infracost
+      uses: infracost/actions/setup@v3
+      # with:
+      #   version: 0.10.40          # pin if you want reproducibility
 
-      # ---------- install Infracost ----------
-      - uses: infracost/actions/setup@v2
-        with:
-          infracost_version: v0.10.33
+    # ──────────────────────────── 1) Checkout base branch ───────────────────────
+    - name: Checkout base branch
+      if: github.event_name == 'pull_request'
+      uses: actions/checkout@v4
+      with:
+        ref: '${{ github.event.pull_request.base.ref }}'
 
-      # ---------- scan ----------
-      - name: Infracost scan
-        id: scan
-        uses: infracost/actions/scan@v2
-        with:
-          plan-file: plan.json
-          format: json
-          output-file: infracost.json
+    # ──────────────────────────── 2) Baseline cost (main) ───────────────────────
+    - name: Generate baseline cost estimate
+      if: github.event_name == 'pull_request'
+      run: |
+        infracost breakdown --path=infra \
+                            --format=json \
+                            --out-file=/tmp/infracost-base.json
 
-      # ---------- comment on PR / commit ----------
-      - name: Infracost comment
-        uses: infracost/actions/comment@v2
-        with:
-          path: infracost.json
-          behavior: update
+    # ──────────────────────────── 3) Checkout PR branch again ───────────────────
+    - name: Checkout PR branch
+      if: github.event_name == 'pull_request'
+      uses: actions/checkout@v4
 
-      # ---------- cost guard ----------
-      - name: Fail if monthly diff > $5
-        run: |
-          DIFF=$(infracost output --path infracost.json --format json | jq -r '.diffTotalMonthlyCost')
-          THRESHOLD=5
-          echo "diff = $DIFF USD"
-          if (( $(echo "$DIFF > $THRESHOLD" | bc -l) )); then
-            echo "::error ::Cost increase $DIFF exceeds $THRESHOLD"
-            exit 1
-          fi
+    # ──────────────────────────── 4) Diff (or plain breakdown on main) ──────────
+    - name: Generate cost diff / breakdown
+      id: cost
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          infracost diff --path=infra \
+                          --compare-to=/tmp/infracost-base.json \
+                          --format=json \
+                          --out-file=infracost.json
+        else
+          infracost breakdown --path=infra \
+                              --format=json \
+                              --out-file=infracost.json
+        fi
+
+    # ──────────────────────────── 5) Comment on the PR ──────────────────────────
+    - name: Post Infracost PR comment
+      if: github.event_name == 'pull_request'
+      run: |
+        infracost comment github --path=infracost.json \
+                                 --repo=$GITHUB_REPOSITORY \
+                                 --github-token=${{ github.token }} \
+                                 --pull-request=${{ github.event.pull_request.number }} \
+                                 --behavior=update
+
+    # ──────────────────────────── 6) Fail build if diff > $5 ────────────────────
+    - name: Guardrail – fail if monthly diff > $5
+      if: github.event_name == 'pull_request'
+      run: |
+        diff=$(infracost output --path infracost.json --format json |
+               jq -r '.diffTotalMonthlyCost // 0')
+        echo "Monthly cost difference: $diff USD"
+        threshold=5
+        if (( $(echo "$diff > $threshold" | bc -l) )); then
+          echo "::error ::Cost increase $diff exceeds threshold $threshold"
+          exit 1
+        fi
